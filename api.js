@@ -1,5 +1,5 @@
 // API 설정
-const API_BASE_URL = 'http://localhost:3000/api'; // 로컬 개발용
+const API_BASE_URL = 'https://gongbu-grow-backend-production.up.railway.app/api'; // 로컬 개발용
 // const API_BASE_URL = 'https://your-backend.railway.app/api'; // 배포 시 변경
 
 // 로컬 스토리지 키
