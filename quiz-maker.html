@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>퀴즈 - 공부.성장</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --bg-light: #1e293b;
+            --bg-lighter: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        /* 퀴즈 생성 */
+        .quiz-creator {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+        
+        select, input, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+            font-family: 'Noto Sans KR', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+        }
+        
+        /* 퀴즈 카드 */
+        .quiz-card {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 30px;
+        }
+        
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .quiz-number {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .quiz-type {
+            padding: 6px 14px;
+            background: var(--bg-lighter);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .quiz-question {
+            font-size: 1.4rem;
+            font-weight: 700;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .quiz-option {
+            padding: 18px 20px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.05rem;
+        }
+        
+        .quiz-option:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+        
+        .quiz-option.selected {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .quiz-option.wrong {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .quiz-result {
+            background: linear-gradient(135deg, var(--success), var(--primary));
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .result-score {
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .result-message {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-lighter);
+            color: var(--text);
+            margin-top: 15px;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+        
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div style="display: flex; gap: 10px;">
+            <button class="back-btn" onclick="window.location.href='dashboard.html'">←</button>
+            <button class="back-btn" onclick="window.location.href='index.html'" title="처음으로">🏠</button>
+        </div>
+        <h1 class="header-title">❓ 퀴즈</h1>
+    </header>
+    
+    <div class="container">
+        <!-- 퀴즈 생성 -->
+        <div class="quiz-creator">
+            <h2 class="section-title">📝 퀴즈 생성하기</h2>
+            
+            <div class="form-group">
+                <label class="form-label">퀴즈 유형</label>
+                <select id="quizType">
+                    <option value="ox">OX 퀴즈</option>
+                    <option value="multiple">객관식 (4지선다)</option>
+                    <option value="short">단답형</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">문제</label>
+                <textarea id="question" placeholder="문제를 입력하세요"></textarea>
+            </div>
+            
+            <div id="optionsContainer" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">선택지</label>
+                    <input type="text" id="option1" placeholder="선택지 1">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="option2" placeholder="선택지 2">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="option3" placeholder="선택지 3">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="option4" placeholder="선택지 4">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">정답</label>
+                <input type="text" id="answer" placeholder="정답을 입력하세요">
+            </div>
+            
+            <button class="btn btn-primary" onclick="createQuiz()">✅ 퀴즈 추가</button>
+        </div>
+        
+        <!-- 퀴즈 목록 -->
+        <div id="quizContainer"></div>
+    </div>
+    
+    <script>
+        let quizzes = [];
+        let currentAnswers = {};
+        
+        // 퀴즈 타입 변경
+        document.getElementById('quizType').addEventListener('change', (e) => {
+            const optionsContainer = document.getElementById('optionsContainer');
+            const answerInput = document.getElementById('answer');
+            
+            if (e.target.value === 'multiple') {
+                optionsContainer.style.display = 'block';
+                answerInput.placeholder = '정답 번호 (1, 2, 3, 4)';
+            } else if (e.target.value === 'ox') {
+                optionsContainer.style.display = 'none';
+                answerInput.placeholder = 'O 또는 X';
+            } else {
+                optionsContainer.style.display = 'none';
+                answerInput.placeholder = '정답을 입력하세요';
+            }
+        });
+        
+        // 퀴즈 생성
+        function createQuiz() {
+            const type = document.getElementById('quizType').value;
+            const question = document.getElementById('question').value.trim();
+            const answer = document.getElementById('answer').value.trim();
+            
+            if (!question || !answer) {
+                alert('문제와 정답을 입력해주세요!');
+                return;
+            }
+            
+            const quiz = {
+                type: type,
+                question: question,
+                answer: answer,
+                options: null
+            };
+            
+            if (type === 'multiple') {
+                const options = [
+                    document.getElementById('option1').value.trim(),
+                    document.getElementById('option2').value.trim(),
+                    document.getElementById('option3').value.trim(),
+                    document.getElementById('option4').value.trim()
+                ];
+                
+                if (options.some(opt => !opt)) {
+                    alert('모든 선택지를 입력해주세요!');
+                    return;
+                }
+                
+                quiz.options = options;
+            }
+            
+            quizzes.push(quiz);
+            
+            // 포인트 추가
+            const user = JSON.parse(localStorage.getItem('gongbu_user') || '{}');
+            user.points = (user.points || 0) + 5;
+            localStorage.setItem('gongbu_user', JSON.stringify(user));
+            
+            // 폼 리셋
+            document.getElementById('question').value = '';
+            document.getElementById('answer').value = '';
+            document.getElementById('option1').value = '';
+            document.getElementById('option2').value = '';
+            document.getElementById('option3').value = '';
+            document.getElementById('option4').value = '';
+            
+            renderQuizzes();
+        }
+        
+        // 퀴즈 렌더링
+        function renderQuizzes() {
+            const container = document.getElementById('quizContainer');
+            
+            if (quizzes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">❓</div>
+                        <p>아직 퀴즈가 없습니다<br>퀴즈를 생성해보세요!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = quizzes.map((quiz, index) => {
+                const typeLabels = {
+                    'ox': 'OX 퀴즈',
+                    'multiple': '객관식',
+                    'short': '단답형'
+                };
+                
+                return `
+                    <div class="quiz-card">
+                        <div class="quiz-header">
+                            <div class="quiz-number">문제 ${index + 1}</div>
+                            <div class="quiz-type">${typeLabels[quiz.type]}</div>
+                        </div>
+                        <div class="quiz-question">${quiz.question}</div>
+                        ${renderQuizOptions(quiz, index)}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 퀴즈 옵션 렌더링
+        function renderQuizOptions(quiz, quizIndex) {
+            if (quiz.type === 'ox') {
+                return `
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectAnswer(${quizIndex}, 'O')">⭕ O (맞다)</div>
+                        <div class="quiz-option" onclick="selectAnswer(${quizIndex}, 'X')">❌ X (틀리다)</div>
+                    </div>
+                `;
+            } else if (quiz.type === 'multiple') {
+                return `
+                    <div class="quiz-options">
+                        ${quiz.options.map((opt, i) => `
+                            <div class="quiz-option" onclick="selectAnswer(${quizIndex}, '${i + 1}')">
+                                ${i + 1}. ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="form-group">
+                        <input type="text" id="shortAnswer${quizIndex}" placeholder="답을 입력하세요" 
+                               style="font-size: 1.1rem;" onchange="selectAnswer(${quizIndex}, this.value)">
+                    </div>
+                `;
+            }
+        }
+        
+        // 답 선택
+        function selectAnswer(quizIndex, answer) {
+            currentAnswers[quizIndex] = answer;
+            
+            // 전체 제출 버튼 표시
+            const container = document.getElementById('quizContainer');
+            const existingSubmit = document.getElementById('submitAllBtn');
+            
+            if (!existingSubmit && Object.keys(currentAnswers).length > 0) {
+                container.insertAdjacentHTML('beforeend', `
+                    <button class="btn btn-primary" id="submitAllBtn" onclick="submitAll()">
+                        📝 전체 채점하기
+                    </button>
+                `);
+            }
+        }
+        
+        // 전체 채점
+        function submitAll() {
+            let correct = 0;
+            const total = quizzes.length;
+            
+            quizzes.forEach((quiz, index) => {
+                const userAnswer = currentAnswers[index];
+                const isCorrect = userAnswer && userAnswer.toString().toUpperCase() === quiz.answer.toString().toUpperCase();
+                
+                if (isCorrect) correct++;
+            });
+            
+            const score = Math.round((correct / total) * 100);
+            
+            // 포인트 추가 (10문제 풀이 = 5포인트)
+            const user = JSON.parse(localStorage.getItem('gongbu_user') || '{}');
+            user.points = (user.points || 0) + 5;
+            localStorage.setItem('gongbu_user', JSON.stringify(user));
+            
+            // 결과 표시
+            const container = document.getElementById('quizContainer');
+            container.innerHTML += `
+                <div class="quiz-result">
+                    <div class="result-score">${score}점</div>
+                    <div class="result-message">
+                        ${correct}/${total} 문제 정답!
+                        ${score >= 80 ? '🎉 잘했어요!' : score >= 60 ? '👍 좋아요!' : '💪 다시 도전!'}
+                    </div>
+                    <button class="btn btn-secondary" onclick="resetQuiz()">다시 풀기</button>
+                </div>
+            `;
+            
+            document.getElementById('submitAllBtn').remove();
+        }
+        
+        // 퀴즈 리셋
+        function resetQuiz() {
+            currentAnswers = {};
+            renderQuizzes();
+        }
+        
+        // 초기 로드
+        window.addEventListener('DOMContentLoaded', () => {
+            renderQuizzes();
+        });
+    </script>
+</body>
+</html>

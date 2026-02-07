@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도전과제 - 공부.성장</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --bg-light: #1e293b;
+            --bg-lighter: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --gold: #fbbf24;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        /* 배지 컬렉션 */
+        .badges-section {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 24px;
+            padding: 35px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .badges-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+        
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 20px;
+        }
+        
+        .badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .badge-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .badge.locked .badge-icon {
+            background: rgba(0, 0, 0, 0.3);
+            filter: grayscale(1);
+            opacity: 0.5;
+        }
+        
+        .badge-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        /* 도전과제 */
+        .challenges-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .challenge-card {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .challenge-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .challenge-card.completed {
+            border-color: var(--success);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(99, 102, 241, 0.1));
+        }
+        
+        .challenge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .challenge-info {
+            flex: 1;
+        }
+        
+        .challenge-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .challenge-icon {
+            font-size: 1.5rem;
+        }
+        
+        .challenge-description {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+        
+        .challenge-reward {
+            display: inline-block;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, var(--gold), var(--warning));
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .challenge-status {
+            text-align: right;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .status-badge.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .status-badge.completed {
+            background: linear-gradient(135deg, var(--success), var(--primary));
+            color: white;
+        }
+        
+        .progress-bar {
+            width: 150px;
+            height: 8px;
+            background: var(--bg);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-left: auto;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .challenge-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .challenge-status {
+                text-align: left;
+            }
+            
+            .progress-bar {
+                margin-left: 0;
+            }
+            
+            .badges-grid {
+                grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div style="display: flex; gap: 10px;">
+            <button class="back-btn" onclick="window.location.href='dashboard.html'">←</button>
+            <button class="back-btn" onclick="window.location.href='index.html'" title="처음으로">🏠</button>
+        </div>
+        <h1 class="header-title">🎯 도전과제</h1>
+    </header>
+    
+    <div class="container">
+        <!-- 배지 컬렉션 -->
+        <div class="badges-section">
+            <h2 class="badges-title">🏆 내 배지 컬렉션</h2>
+            <div class="badges-grid" id="badgesGrid">
+                <!-- 배지들이 여기 표시됨 -->
+            </div>
+        </div>
+        
+        <!-- 활성 도전과제 -->
+        <div class="challenges-section">
+            <h3 class="section-title">⚡ 진행 중인 도전과제</h3>
+            <div id="activeChallenges"></div>
+        </div>
+        
+        <!-- 완료된 도전과제 -->
+        <div class="challenges-section">
+            <h3 class="section-title">✅ 완료된 도전과제</h3>
+            <div id="completedChallenges"></div>
+        </div>
+    </div>
+    
+    <script>
+        // 배지 정의
+        const badges = [
+            { id: 'first_day', icon: '🎉', name: '첫 걸음', condition: () => true },
+            { id: 'streak_7', icon: '🔥', name: '일주일', condition: () => getStreak() >= 7 },
+            { id: 'streak_30', icon: '⚡', name: '한 달', condition: () => getStreak() >= 30 },
+            { id: 'study_10h', icon: '📚', name: '10시간', condition: () => getTotalHours() >= 10 },
+            { id: 'study_50h', icon: '💪', name: '50시간', condition: () => getTotalHours() >= 50 },
+            { id: 'study_100h', icon: '👑', name: '100시간', condition: () => getTotalHours() >= 100 },
+            { id: 'grade_90', icon: '🌟', name: '90점', condition: () => getBestGrade() >= 90 },
+            { id: 'grade_100', icon: '💎', name: '100점', condition: () => getBestGrade() >= 100 },
+            { id: 'concept_10', icon: '📝', name: '개념노트', condition: () => getConceptCount() >= 10 },
+            { id: 'points_500', icon: '🎯', name: '포인트왕', condition: () => getPoints() >= 500 }
+        ];
+        
+        // 도전과제 정의
+        const challenges = [
+            {
+                id: 'daily_study',
+                icon: '⏰',
+                title: '오늘도 공부하기',
+                description: '하루 1시간 이상 공부하기',
+                reward: '+10 포인트',
+                target: 60,
+                getProgress: () => getTodayMinutes()
+            },
+            {
+                id: 'weekly_20h',
+                icon: '📊',
+                title: '주간 목표 달성',
+                description: '이번 주 20시간 공부하기',
+                reward: '+50 포인트',
+                target: 1200,
+                getProgress: () => getWeeklyMinutes()
+            },
+            {
+                id: 'streak_challenge',
+                icon: '🔥',
+                title: '7일 연속 공부',
+                description: '일주일 동안 하루도 빠짐없이',
+                reward: '배지 획득',
+                target: 7,
+                getProgress: () => getStreak()
+            },
+            {
+                id: 'grade_improve',
+                icon: '📈',
+                title: '성적 상승',
+                description: '이전 시험보다 10점 향상',
+                reward: '+30 포인트',
+                target: 1,
+                getProgress: () => checkGradeImprovement() ? 1 : 0
+            },
+            {
+                id: 'concept_mastery',
+                icon: '📝',
+                title: '개념 정리왕',
+                description: '개념 노트 5개 작성하기',
+                reward: '+20 포인트',
+                target: 5,
+                getProgress: () => getConceptCount()
+            }
+        ];
+        
+        // 헬퍼 함수들
+        function getStreak() {
+            const logs = JSON.parse(localStorage.getItem('gongbu_study_logs') || '[]');
+            if (logs.length === 0) return 0;
+            
+            const today = new Date().toDateString();
+            let streak = 0;
+            let checkDate = new Date();
+            
+            for (let i = 0; i < 365; i++) {
+                const dateStr = checkDate.toDateString();
+                const hasLog = logs.some(log => new Date(log.date).toDateString() === dateStr);
+                
+                if (hasLog) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+            
+            return streak;
+        }
+        
+        function getTotalHours() {
+            const logs = JSON.parse(localStorage.getItem('gongbu_study_logs') || '[]');
+            const totalSeconds = logs.reduce((sum, log) => sum + log.duration, 0);
+            return totalSeconds / 3600;
+        }
+        
+        function getTodayMinutes() {
+            const logs = JSON.parse(localStorage.getItem('gongbu_study_logs') || '[]');
+            const today = new Date().toDateString();
+            
+            const todayLogs = logs.filter(log => new Date(log.date).toDateString() === today);
+            const totalSeconds = todayLogs.reduce((sum, log) => sum + log.duration, 0);
+            return totalSeconds / 60;
+        }
+        
+        function getWeeklyMinutes() {
+            const logs = JSON.parse(localStorage.getItem('gongbu_study_logs') || '[]');
+            const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+            
+            const weeklyLogs = logs.filter(log => new Date(log.date).getTime() > oneWeekAgo);
+            const totalSeconds = weeklyLogs.reduce((sum, log) => sum + log.duration, 0);
+            return totalSeconds / 60;
+        }
+        
+        function getBestGrade() {
+            const grades = JSON.parse(localStorage.getItem('gongbu_grades') || '[]');
+            if (grades.length === 0) return 0;
+            
+            return Math.max(...grades.map(g => g.average));
+        }
+        
+        function getConceptCount() {
+            const concepts = JSON.parse(localStorage.getItem('gongbu_concepts') || '[]');
+            return concepts.length;
+        }
+        
+        function getPoints() {
+            const user = JSON.parse(localStorage.getItem('gongbu_user') || '{}');
+            return user.points || 0;
+        }
+        
+        function checkGradeImprovement() {
+            const grades = JSON.parse(localStorage.getItem('gongbu_grades') || '[]');
+            if (grades.length < 2) return false;
+            
+            const sorted = grades.sort((a, b) => new Date(b.date) - new Date(a.date));
+            return sorted[0].average - sorted[1].average >= 10;
+        }
+        
+        // 배지 렌더링
+        function renderBadges() {
+            const container = document.getElementById('badgesGrid');
+            
+            container.innerHTML = badges.map(badge => {
+                const unlocked = badge.condition();
+                
+                return `
+                    <div class="badge ${unlocked ? '' : 'locked'}">
+                        <div class="badge-icon">${badge.icon}</div>
+                        <div class="badge-name">${badge.name}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 도전과제 렌더링
+        function renderChallenges() {
+            const activeContainer = document.getElementById('activeChallenges');
+            const completedContainer = document.getElementById('completedChallenges');
+            
+            const active = [];
+            const completed = [];
+            
+            challenges.forEach(challenge => {
+                const progress = challenge.getProgress();
+                const isCompleted = progress >= challenge.target;
+                const percentage = Math.min(100, (progress / challenge.target) * 100);
+                
+                const html = `
+                    <div class="challenge-card ${isCompleted ? 'completed' : ''}">
+                        <div class="challenge-header">
+                            <div class="challenge-info">
+                                <div class="challenge-title">
+                                    <span class="challenge-icon">${challenge.icon}</span>
+                                    ${challenge.title}
+                                </div>
+                                <div class="challenge-description">${challenge.description}</div>
+                                <div class="challenge-reward">🎁 ${challenge.reward}</div>
+                            </div>
+                            <div class="challenge-status">
+                                <div class="status-badge ${isCompleted ? 'completed' : 'active'}">
+                                    ${isCompleted ? '✅ 완료' : '진행중'}
+                                </div>
+                                ${!isCompleted ? `
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: ${percentage}%"></div>
+                                    </div>
+                                    <div class="progress-text">
+                                        ${Math.round(progress)}/${challenge.target}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                if (isCompleted) {
+                    completed.push(html);
+                } else {
+                    active.push(html);
+                }
+            });
+            
+            activeContainer.innerHTML = active.length > 0 
+                ? active.join('') 
+                : '<div style="text-align: center; color: var(--text-muted); padding: 40px;">모든 도전과제를 완료했습니다! 🎉</div>';
+            
+            completedContainer.innerHTML = completed.length > 0
+                ? completed.join('')
+                : '<div style="text-align: center; color: var(--text-muted); padding: 40px;">아직 완료한 도전과제가 없습니다</div>';
+        }
+        
+        // 초기 로드
+        window.addEventListener('DOMContentLoaded', () => {
+            renderBadges();
+            renderChallenges();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>개념 노트 - 공부.성장</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --bg-light: #1e293b;
+            --bg-lighter: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .add-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        /* 검색 & 필터 */
+        .search-section {
+            margin-bottom: 25px;
+        }
+        
+        .search-bar {
+            width: 100%;
+            padding: 15px 20px;
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            color: var(--text);
+            font-size: 1rem;
+            font-family: 'Noto Sans KR', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        .filter-chips {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .filter-chip {
+            padding: 8px 16px;
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .filter-chip:hover {
+            border-color: var(--primary);
+        }
+        
+        .filter-chip.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: transparent;
+            color: white;
+        }
+        
+        /* 개념 카드 */
+        .concepts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .concept-card {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .concept-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .concept-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .concept-subject {
+            display: inline-block;
+            padding: 5px 12px;
+            background: var(--bg-lighter);
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .concept-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .action-icon:hover {
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+        
+        .concept-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .concept-summary {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .concept-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .tag {
+            padding: 4px 10px;
+            background: var(--bg);
+            border-radius: 10px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        /* 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--bg-light);
+            border-radius: 24px;
+            padding: 35px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .close-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+            font-family: 'Noto Sans KR', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+        
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        @media (max-width: 768px) {
+            .concepts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div style="display: flex; gap: 10px;">
+                <button class="back-btn" onclick="window.location.href='dashboard.html'">←</button>
+                <button class="back-btn" onclick="window.location.href='index.html'" title="처음으로">🏠</button>
+            </div>
+            <h1 class="header-title">📝 개념 노트</h1>
+        </div>
+        <button class="add-btn" onclick="openModal()">+ 새 노트</button>
+    </header>
+    
+    <div class="container">
+        <!-- 검색 & 필터 -->
+        <div class="search-section">
+            <input type="text" class="search-bar" id="searchInput" placeholder="개념 검색..." oninput="filterConcepts()">
+            <div class="filter-chips">
+                <div class="filter-chip active" data-subject="전체" onclick="filterBySubject(this)">전체</div>
+                <div class="filter-chip" data-subject="국어" onclick="filterBySubject(this)">국어</div>
+                <div class="filter-chip" data-subject="영어" onclick="filterBySubject(this)">영어</div>
+                <div class="filter-chip" data-subject="수학" onclick="filterBySubject(this)">수학</div>
+                <div class="filter-chip" data-subject="과학" onclick="filterBySubject(this)">과학</div>
+                <div class="filter-chip" data-subject="사회" onclick="filterBySubject(this)">사회</div>
+            </div>
+        </div>
+        
+        <!-- 개념 카드 -->
+        <div class="concepts-grid" id="conceptsList">
+            <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <p>아직 개념 노트가 없습니다<br>새 노트를 작성해보세요!</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 추가/수정 모달 -->
+    <div class="modal" id="conceptModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">새 개념 노트</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            
+            <form onsubmit="saveConcept(event)">
+                <div class="form-group">
+                    <label class="form-label">과목</label>
+                    <select id="subject" required>
+                        <option value="">선택하세요</option>
+                        <option value="국어">국어</option>
+                        <option value="영어">영어</option>
+                        <option value="수학">수학</option>
+                        <option value="과학">과학</option>
+                        <option value="사회">사회</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">제목</label>
+                    <input type="text" id="title" placeholder="개념 제목" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">요약</label>
+                    <textarea id="summary" placeholder="핵심 내용을 간단히 요약하세요" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">상세 설명</label>
+                    <textarea id="details" placeholder="자세한 설명을 작성하세요"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">예시</label>
+                    <textarea id="examples" placeholder="예시나 문제를 작성하세요"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">자주 틀리는 부분</label>
+                    <textarea id="mistakes" placeholder="주의해야 할 점이나 자주 틀리는 부분"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">태그 (쉼표로 구분)</label>
+                    <input type="text" id="tags" placeholder="예: 문법, 중요, 시험출제">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">💾 저장하기</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let currentFilter = '전체';
+        let editingIndex = null;
+        
+        // 모달 열기
+        function openModal(index = null) {
+            const modal = document.getElementById('conceptModal');
+            modal.classList.add('active');
+            
+            if (index !== null) {
+                editingIndex = index;
+                const concepts = JSON.parse(localStorage.getItem('gongbu_concepts') || '[]');
+                const concept = concepts[index];
+                
+                document.getElementById('modalTitle').textContent = '개념 노트 수정';
+                document.getElementById('subject').value = concept.subject;
+                document.getElementById('title').value = concept.title;
+                document.getElementById('summary').value = concept.summary;
+                document.getElementById('details').value = concept.details || '';
+                document.getElementById('examples').value = concept.examples || '';
+                document.getElementById('mistakes').value = concept.mistakes || '';
+                document.getElementById('tags').value = concept.tags.join(', ');
+            } else {
+                editingIndex = null;
+                document.getElementById('modalTitle').textContent = '새 개념 노트';
+                document.querySelector('form').reset();
+            }
+        }
+        
+        // 모달 닫기
+        function closeModal() {
+            document.getElementById('conceptModal').classList.remove('active');
+            document.querySelector('form').reset();
+            editingIndex = null;
+        }
+        
+        // 개념 저장
+        function saveConcept(event) {
+            event.preventDefault();
+            
+            const concept = {
+                subject: document.getElementById('subject').value,
+                title: document.getElementById('title').value,
+                summary: document.getElementById('summary').value,
+                details: document.getElementById('details').value,
+                examples: document.getElementById('examples').value,
+                mistakes: document.getElementById('mistakes').value,
+                tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t),
+                created_at: new Date().toISOString()
+            };
+            
+            const concepts = JSON.parse(localStorage.getItem('gongbu_concepts') || '[]');
+            
+            if (editingIndex !== null) {
+                concepts[editingIndex] = concept;
+            } else {
+                concepts.push(concept);
+                
+                // 포인트 추가
+                const user = JSON.parse(localStorage.getItem('gongbu_user') || '{}');
+                user.points = (user.points || 0) + 15;
+                localStorage.setItem('gongbu_user', JSON.stringify(user));
+            }
+            
+            localStorage.setItem('gongbu_concepts', JSON.stringify(concepts));
+            
+            closeModal();
+            loadConcepts();
+        }
+        
+        // 개념 삭제
+        function deleteConcept(index) {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+            
+            const concepts = JSON.parse(localStorage.getItem('gongbu_concepts') || '[]');
+            concepts.splice(index, 1);
+            localStorage.setItem('gongbu_concepts', JSON.stringify(concepts));
+            
+            loadConcepts();
+        }
+        
+        // 과목별 필터
+        function filterBySubject(element) {
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            element.classList.add('active');
+            
+            currentFilter = element.dataset.subject;
+            loadConcepts();
+        }
+        
+        // 검색 필터
+        function filterConcepts() {
+            loadConcepts();
+        }
+        
+        // 개념 로드
+        function loadConcepts() {
+            const concepts = JSON.parse(localStorage.getItem('gongbu_concepts') || '[]');
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filtered = concepts;
+            
+            // 과목 필터
+            if (currentFilter !== '전체') {
+                filtered = filtered.filter(c => c.subject === currentFilter);
+            }
+            
+            // 검색 필터
+            if (searchQuery) {
+                filtered = filtered.filter(c => 
+                    c.title.toLowerCase().includes(searchQuery) ||
+                    c.summary.toLowerCase().includes(searchQuery) ||
+                    c.tags.some(tag => tag.toLowerCase().includes(searchQuery))
+                );
+            }
+            
+            const container = document.getElementById('conceptsList');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <p>${searchQuery || currentFilter !== '전체' ? '검색 결과가 없습니다' : '아직 개념 노트가 없습니다<br>새 노트를 작성해보세요!'}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filtered.map((concept, displayIndex) => {
+                const originalIndex = concepts.indexOf(concept);
+                
+                return `
+                    <div class="concept-card">
+                        <div class="concept-header">
+                            <span class="concept-subject">${concept.subject}</span>
+                            <div class="concept-actions">
+                                <div class="action-icon" onclick="openModal(${originalIndex})">✏️</div>
+                                <div class="action-icon" onclick="deleteConcept(${originalIndex})">🗑️</div>
+                            </div>
+                        </div>
+                        <h3 class="concept-title">${concept.title}</h3>
+                        <p class="concept-summary">${concept.summary}</p>
+                        ${concept.tags.length > 0 ? `
+                            <div class="concept-tags">
+                                ${concept.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 초기 로드
+        window.addEventListener('DOMContentLoaded', () => {
+            loadConcepts();
+        });
+        
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('conceptModal').addEventListener('click', (e) => {
+            if (e.target.id === 'conceptModal') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

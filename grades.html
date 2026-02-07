@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>성적 기록 - 공부.성장</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --bg-light: #1e293b;
+            --bg-lighter: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        /* 성적 입력 폼 */
+        .grade-form {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .form-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        
+        select, input {
+            padding: 12px 16px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+            font-family: 'Noto Sans KR', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        select {
+            cursor: pointer;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans KR', sans-serif;
+            margin-top: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+        }
+        
+        /* 그래프 */
+        .chart-section {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        /* 성적 목록 */
+        .grades-list {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+        }
+        
+        .grade-item {
+            display: grid;
+            grid-template-columns: 100px 1fr auto;
+            gap: 20px;
+            align-items: center;
+            padding: 20px;
+            background: var(--bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+        }
+        
+        .grade-date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .grade-exam {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .grade-subjects {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .subject-badge {
+            padding: 4px 12px;
+            background: var(--bg-lighter);
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+        
+        .grade-score {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .delete-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--danger);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .delete-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        @media (max-width: 768px) {
+            .grade-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .grade-score {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div style="display: flex; gap: 10px;">
+            <button class="back-btn" onclick="window.location.href='dashboard.html'">←</button>
+            <button class="back-btn" onclick="window.location.href='index.html'" title="처음으로">🏠</button>
+        </div>
+        <h1 class="header-title">📈 성적 기록</h1>
+    </header>
+    
+    <div class="container">
+        <!-- 성적 입력 폼 -->
+        <div class="grade-form">
+            <h2 class="form-title">📝 새 성적 입력</h2>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">시험 종류</label>
+                    <select id="examType">
+                        <option value="">선택하세요</option>
+                        <option value="중간고사">중간고사</option>
+                        <option value="기말고사">기말고사</option>
+                        <option value="모의고사">모의고사</option>
+                        <option value="단원평가">단원평가</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">날짜</label>
+                    <input type="date" id="examDate">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">국어</label>
+                    <input type="number" id="korean" min="0" max="100" placeholder="점수">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">영어</label>
+                    <input type="number" id="english" min="0" max="100" placeholder="점수">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">수학</label>
+                    <input type="number" id="math" min="0" max="100" placeholder="점수">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">과학</label>
+                    <input type="number" id="science" min="0" max="100" placeholder="점수">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">사회</label>
+                    <input type="number" id="social" min="0" max="100" placeholder="점수">
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="addGrade()">✅ 성적 저장</button>
+        </div>
+        
+        <!-- 그래프 -->
+        <div class="chart-section">
+            <h3 class="section-title">📊 성적 추이</h3>
+            <div class="chart-container">
+                <canvas id="gradeChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- 성적 목록 -->
+        <div class="grades-list">
+            <h3 class="section-title">📚 기록된 성적</h3>
+            <div id="gradesList">
+                <div class="empty-state">
+                    <div class="empty-icon">📝</div>
+                    <p>아직 기록된 성적이 없습니다</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let chart = null;
+        
+        // 오늘 날짜 기본값 설정
+        document.getElementById('examDate').valueAsDate = new Date();
+        
+        // 성적 추가
+        function addGrade() {
+            const examType = document.getElementById('examType').value;
+            const examDate = document.getElementById('examDate').value;
+            const korean = parseFloat(document.getElementById('korean').value) || 0;
+            const english = parseFloat(document.getElementById('english').value) || 0;
+            const math = parseFloat(document.getElementById('math').value) || 0;
+            const science = parseFloat(document.getElementById('science').value) || 0;
+            const social = parseFloat(document.getElementById('social').value) || 0;
+            
+            if (!examType || !examDate) {
+                alert('시험 종류와 날짜를 입력해주세요!');
+                return;
+            }
+            
+            if (korean === 0 && english === 0 && math === 0 && science === 0 && social === 0) {
+                alert('최소 한 과목 이상의 점수를 입력해주세요!');
+                return;
+            }
+            
+            const subjects = {};
+            if (korean > 0) subjects['국어'] = korean;
+            if (english > 0) subjects['영어'] = english;
+            if (math > 0) subjects['수학'] = math;
+            if (science > 0) subjects['과학'] = science;
+            if (social > 0) subjects['사회'] = social;
+            
+            const scores = Object.values(subjects);
+            const average = scores.reduce((a, b) => a + b, 0) / scores.length;
+            
+            const grade = {
+                exam_type: examType,
+                date: examDate,
+                subjects: subjects,
+                average: Math.round(average * 10) / 10,
+                timestamp: Date.now()
+            };
+            
+            // LocalStorage에 저장
+            const grades = JSON.parse(localStorage.getItem('gongbu_grades') || '[]');
+            grades.push(grade);
+            localStorage.setItem('gongbu_grades', JSON.stringify(grades));
+            
+            // 포인트 추가 (평균 90점 이상 = 50포인트, 80점 이상 = 30포인트, 그 외 = 10포인트)
+            let points = 10;
+            if (average >= 90) points = 50;
+            else if (average >= 80) points = 30;
+            
+            const user = JSON.parse(localStorage.getItem('gongbu_user') || '{}');
+            user.points = (user.points || 0) + points;
+            localStorage.setItem('gongbu_user', JSON.stringify(user));
+            
+            // 폼 리셋
+            document.getElementById('examType').value = '';
+            document.getElementById('korean').value = '';
+            document.getElementById('english').value = '';
+            document.getElementById('math').value = '';
+            document.getElementById('science').value = '';
+            document.getElementById('social').value = '';
+            
+            // 화면 갱신
+            loadGrades();
+            
+            alert(`성적이 저장되었습니다! +${points} 포인트 획득!`);
+        }
+        
+        // 성적 삭제
+        function deleteGrade(index) {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+            
+            const grades = JSON.parse(localStorage.getItem('gongbu_grades') || '[]');
+            grades.splice(index, 1);
+            localStorage.setItem('gongbu_grades', JSON.stringify(grades));
+            
+            loadGrades();
+        }
+        
+        // 성적 로드
+        function loadGrades() {
+            const grades = JSON.parse(localStorage.getItem('gongbu_grades') || '[]');
+            const container = document.getElementById('gradesList');
+            
+            if (grades.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <p>아직 기록된 성적이 없습니다</p>
+                    </div>
+                `;
+                updateChart([]);
+                return;
+            }
+            
+            // 날짜순 정렬 (최신순)
+            grades.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            container.innerHTML = grades.map((grade, index) => {
+                const subjectsList = Object.entries(grade.subjects)
+                    .map(([subject, score]) => `${subject} ${score}점`)
+                    .join(' · ');
+                
+                return `
+                    <div class="grade-item">
+                        <div>
+                            <div class="grade-date">${new Date(grade.date).toLocaleDateString('ko-KR')}</div>
+                            <div class="grade-exam">${grade.exam_type}</div>
+                        </div>
+                        <div>
+                            <div class="grade-subjects" style="font-size: 0.9rem; color: var(--text-muted);">
+                                ${subjectsList}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div class="grade-score">${grade.average}</div>
+                            <button class="delete-btn" onclick="deleteGrade(${grades.length - 1 - index})">×</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            updateChart(grades);
+        }
+        
+        // 차트 업데이트
+        function updateChart(grades) {
+            const ctx = document.getElementById('gradeChart');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            if (grades.length === 0) {
+                return;
+            }
+            
+            // 날짜순 정렬 (과거순)
+            grades.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            const labels = grades.map(g => {
+                const date = new Date(g.date);
+                return `${date.getMonth() + 1}/${date.getDate()}`;
+            });
+            
+            const averages = grades.map(g => g.average);
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '평균 점수',
+                        data: averages,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#6366f1',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: '#334155'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: '#334155'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 초기 로드
+        window.addEventListener('DOMContentLoaded', () => {
+            loadGrades();
+        });
+    </script>
+</body>
+</html>
