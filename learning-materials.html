@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학습자료 - 공부.성장</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #667eea;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .filter-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            color: #666;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .materials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .material-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .material-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .material-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .material-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .difficulty-badge {
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .difficulty-easy {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .difficulty-medium {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .difficulty-hard {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .material-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .material-unit {
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .material-summary {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 900px;
+            margin: 40px auto;
+            border-radius: 20px;
+            padding: 40px;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .modal-unit {
+            font-size: 16px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .modal-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .section-content {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #444;
+            white-space: pre-wrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .materials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .modal-content {
+                padding: 20px;
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 학습자료</h1>
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="location.href='dashboard.html'">대시보드</button>
+                <button class="nav-btn" onclick="location.href='quiz-shared.html'">퀴즈 공유</button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-group">
+                <label>🏫 학교급</label>
+                <div class="filter-buttons" id="schoolLevelButtons"></div>
+            </div>
+
+            <div class="filter-group">
+                <label>📖 학년</label>
+                <div class="filter-buttons" id="gradeButtons"></div>
+            </div>
+
+            <div class="filter-group">
+                <label>📚 과목</label>
+                <div class="filter-buttons" id="subjectButtons"></div>
+            </div>
+
+            <div class="filter-group">
+                <label>🔍 검색</label>
+                <input type="text" class="search-box" id="searchBox" placeholder="단원명이나 내용을 검색하세요...">
+            </div>
+        </div>
+
+        <div id="loadingState" class="loading" style="display: none;">
+            학습자료를 불러오는 중...
+        </div>
+
+        <div id="materialsGrid" class="materials-grid"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h2>😅 학습자료가 없습니다</h2>
+            <p>다른 조건으로 검색해보세요!</p>
+        </div>
+    </div>
+
+    <div id="materialModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        let currentFilters = {
+            schoolLevel: null,
+            grade: null,
+            subject: null
+        };
+
+        async function init() {
+            await loadSchoolLevels();
+            setupSearch();
+        }
+
+        async function loadSchoolLevels() {
+            const container = document.getElementById('schoolLevelButtons');
+            const schoolLevels = ['초등', '중등', '고등'];
+            
+            schoolLevels.forEach(level => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = level;
+                btn.onclick = () => selectSchoolLevel(level);
+                container.appendChild(btn);
+            });
+        }
+
+        async function selectSchoolLevel(level) {
+            currentFilters.schoolLevel = level;
+            currentFilters.grade = null;
+            currentFilters.subject = null;
+            
+            updateActiveButtons('schoolLevelButtons', level);
+            await loadGrades(level);
+            document.getElementById('subjectButtons').innerHTML = '';
+            clearMaterials();
+        }
+
+        async function loadGrades(schoolLevel) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/learning-materials/grades?school_level=${schoolLevel}`);
+                const data = await response.json();
+                
+                const container = document.getElementById('gradeButtons');
+                container.innerHTML = '';
+                
+                data.grades.forEach(grade => {
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-btn';
+                    btn.textContent = `${grade}학년`;
+                    btn.onclick = () => selectGrade(grade);
+                    container.appendChild(btn);
+                });
+            } catch (error) {
+                console.error('학년 로드 오류:', error);
+            }
+        }
+
+        async function selectGrade(grade) {
+            currentFilters.grade = grade;
+            currentFilters.subject = null;
+            
+            updateActiveButtons('gradeButtons', `${grade}학년`);
+            await loadSubjects(currentFilters.schoolLevel);
+            clearMaterials();
+        }
+
+        async function loadSubjects(schoolLevel) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/learning-materials/subjects?school_level=${schoolLevel}`);
+                const data = await response.json();
+                
+                const container = document.getElementById('subjectButtons');
+                container.innerHTML = '';
+                
+                data.subjects.forEach(subject => {
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-btn';
+                    btn.textContent = subject;
+                    btn.onclick = () => selectSubject(subject);
+                    container.appendChild(btn);
+                });
+            } catch (error) {
+                console.error('과목 로드 오류:', error);
+            }
+        }
+
+        async function selectSubject(subject) {
+            currentFilters.subject = subject;
+            updateActiveButtons('subjectButtons', subject);
+            await loadMaterials();
+        }
+
+        async function loadMaterials() {
+            if (!currentFilters.schoolLevel || !currentFilters.grade || !currentFilters.subject) {
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const url = `${API_BASE_URL}/learning-materials?school_level=${currentFilters.schoolLevel}&grade=${currentFilters.grade}&subject=${currentFilters.subject}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                displayMaterials(data.materials);
+            } catch (error) {
+                console.error('학습자료 로드 오류:', error);
+                showEmpty();
+            }
+        }
+
+        function displayMaterials(materials) {
+            const container = document.getElementById('materialsGrid');
+            container.innerHTML = '';
+            
+            hideLoading();
+
+            if (!materials || materials.length === 0) {
+                showEmpty();
+                return;
+            }
+
+            hideEmpty();
+
+            materials.forEach(material => {
+                const card = createMaterialCard(material);
+                container.appendChild(card);
+            });
+        }
+
+        function createMaterialCard(material) {
+            const card = document.createElement('div');
+            card.className = 'material-card';
+            card.onclick = () => showMaterialDetail(material);
+
+            const difficultyClass = `difficulty-${material.difficulty || 'medium'}`;
+            const difficultyText = {
+                'easy': '쉬움',
+                'medium': '보통',
+                'hard': '어려움'
+            }[material.difficulty || 'medium'];
+
+            card.innerHTML = `
+                <div class="material-header">
+                    <div class="material-number">${material.unit_number}단원</div>
+                    <div class="difficulty-badge ${difficultyClass}">${difficultyText}</div>
+                </div>
+                <div class="material-unit">${material.unit_name}</div>
+                <div class="material-title">${material.title}</div>
+                <div class="material-summary">${material.summary}</div>
+            `;
+
+            return card;
+        }
+
+        function showMaterialDetail(material) {
+            const modal = document.getElementById('materialModal');
+            const content = document.getElementById('modalContent');
+
+            content.innerHTML = `
+                <div class="modal-title">${material.title}</div>
+                <div class="modal-unit">${material.unit_name}</div>
+
+                <div class="modal-section">
+                    <div class="section-title">📖 내용</div>
+                    <div class="section-content">${material.content}</div>
+                </div>
+
+                ${material.examples ? `
+                <div class="modal-section">
+                    <div class="section-title">💡 예제</div>
+                    <div class="section-content">${material.examples}</div>
+                </div>
+                ` : ''}
+
+                ${material.key_points ? `
+                <div class="modal-section">
+                    <div class="section-title">🔑 핵심 포인트</div>
+                    <div class="section-content">${material.key_points}</div>
+                </div>
+                ` : ''}
+
+                ${material.common_mistakes ? `
+                <div class="modal-section">
+                    <div class="section-title">⚠️ 자주 틀리는 부분</div>
+                    <div class="section-content">${material.common_mistakes}</div>
+                </div>
+                ` : ''}
+            `;
+
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('materialModal').style.display = 'none';
+        }
+
+        function setupSearch() {
+            const searchBox = document.getElementById('searchBox');
+            let timeout;
+
+            searchBox.addEventListener('input', (e) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(async () => {
+                    const keyword = e.target.value.trim();
+                    if (keyword.length >= 2) {
+                        await searchMaterials(keyword);
+                    } else if (keyword.length === 0) {
+                        if (currentFilters.subject) {
+                            await loadMaterials();
+                        } else {
+                            clearMaterials();
+                        }
+                    }
+                }, 500);
+            });
+        }
+
+        async function searchMaterials(keyword) {
+            showLoading();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/learning-materials/search?keyword=${encodeURIComponent(keyword)}`);
+                const data = await response.json();
+                displayMaterials(data.results);
+            } catch (error) {
+                console.error('검색 오류:', error);
+                showEmpty();
+            }
+        }
+
+        function updateActiveButtons(containerId, activeText) {
+            const container = document.getElementById(containerId);
+            const buttons = container.querySelectorAll('.filter-btn');
+            
+            buttons.forEach(btn => {
+                if (btn.textContent === activeText) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        function showLoading() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('materialsGrid').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('materialsGrid').style.display = 'grid';
+        }
+
+        function showEmpty() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('materialsGrid').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        function hideEmpty() {
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        function clearMaterials() {
+            document.getElementById('materialsGrid').innerHTML = '';
+            hideLoading();
+            hideEmpty();
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('materialModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
