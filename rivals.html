@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>라이벌 - 공부.성장</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
         
         * {
             margin: 0;
@@ -16,12 +16,16 @@
         :root {
             --primary: #6366f1;
             --secondary: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
             --bg: #0f172a;
             --bg-light: #1e293b;
             --text: #f8fafc;
             --text-muted: #94a3b8;
             --border: #334155;
-            --gold: #fbbf24;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
         }
         
         body {
@@ -29,373 +33,458 @@
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
+            padding-bottom: 80px;
         }
         
         .header {
             background: var(--bg-light);
             border-bottom: 1px solid var(--border);
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         
-        .back-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
-            font-size: 1.2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-        
-        .back-btn:hover {
-            background: var(--bg);
-        }
-        
-        .header-title {
+        .header h1 {
             font-size: 1.5rem;
-            font-weight: 700;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--border);
-        }
-        
-        .tab {
-            padding: 12px 24px;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-        
-        .tab.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-        
-        .rank-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .rank-item {
-            background: var(--bg-light);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            transition: all 0.2s;
-        }
-        
-        .rank-item:hover {
-            transform: translateX(4px);
-            border-color: var(--primary);
-        }
-        
-        .rank-item.me {
-            border-color: var(--gold);
-            background: rgba(251, 191, 36, 0.1);
-        }
-        
-        .rank-number {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 1.1rem;
-        }
-        
-        .rank-item.rank-1 .rank-number {
-            background: linear-gradient(135deg, #ffd700, #ffed4e);
-            color: #000;
-        }
-        
-        .rank-item.rank-2 .rank-number {
-            background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
-            color: #000;
-        }
-        
-        .rank-item.rank-3 .rank-number {
-            background: linear-gradient(135deg, #cd7f32, #d4915e);
-            color: #fff;
-        }
-        
-        .rank-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-        
-        .rank-info {
-            flex: 1;
-        }
-        
-        .rank-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        
-        .rank-school {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-        
-        .rank-stats {
-            text-align: right;
-        }
-        
-        .rank-hours {
-            font-size: 1.5rem;
-            font-weight: 900;
+            text-align: center;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         
-        .rank-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
+        .tabs {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            overflow-x: auto;
+            background: var(--bg-light);
         }
         
-        .tier-badge {
-            padding: 4px 10px;
+        .tab {
+            padding: 12px 24px;
+            background: var(--bg);
+            border: 1px solid var(--border);
             border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-top: 4px;
-            display: inline-block;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            font-weight: 600;
         }
         
-        .tier-bronze { background: #cd7f32; color: white; }
-        .tier-silver { background: #c0c0c0; color: #333; }
-        .tier-gold { background: #ffd700; color: #333; }
-        .tier-platinum { background: #e5e4e2; color: #333; }
-        .tier-diamond { background: #b9f2ff; color: #333; }
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: transparent;
+        }
         
-        .loading {
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .ranking-type-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .ranking-type-tab {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
             text-align: center;
-            padding: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .ranking-type-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: transparent;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .ranking-card {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s;
+        }
+        
+        .ranking-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+        
+        .ranking-card.current-user {
+            border: 2px solid var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .rank {
+            font-size: 1.5rem;
+            font-weight: 900;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .rank.gold {
+            color: var(--gold);
+        }
+        
+        .rank.silver {
+            color: var(--silver);
+        }
+        
+        .rank.bronze {
+            color: var(--bronze);
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .nickname {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .school-info {
+            font-size: 0.85rem;
             color: var(--text-muted);
         }
         
-        .empty {
+        .stats {
+            text-align: right;
+        }
+        
+        .hours {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state {
             text-align: center;
             padding: 60px 20px;
+            color: var(--text-muted);
         }
         
-        .empty-icon {
+        .empty-state-icon {
             font-size: 4rem;
             margin-bottom: 16px;
         }
         
-        .empty-text {
-            color: var(--text-muted);
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
         }
         
-        .info-box {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-light);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
             color: var(--text-muted);
+            font-size: 0.75rem;
+            transition: all 0.3s;
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+        }
+        
+        .nav-icon {
+            font-size: 1.5rem;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <button class="back-btn" onclick="location.href='dashboard.html'">←</button>
-        <div class="header-title">⚔️ 라이벌</div>
+        <h1>🏆 라이벌</h1>
+    </div>
+    
+    <div class="tabs" id="tabs">
+        <div class="tab active" data-tab="school">우리 학교</div>
+        <div class="tab" data-tab="global">전국 랭킹</div>
     </div>
     
     <div class="container">
-        <div class="info-box">
-            💡 이번 주 학습 시간을 기준으로 랭킹이 매겨집니다.<br>
-            더 열심히 공부해서 순위를 올려보세요!
+        <!-- 학교 내 랭킹 -->
+        <div id="schoolRanking" class="ranking-section">
+            <div class="loading" id="schoolLoading">
+                <div class="spinner"></div>
+                <p>로딩 중...</p>
+            </div>
+            <div id="schoolContent" style="display: none;">
+                <div id="schoolRankingList"></div>
+            </div>
         </div>
         
-        <div class="tabs">
-            <button class="tab active" data-tab="school" onclick="switchTab('school')">
-                🏫 같은 학교
-            </button>
-            <button class="tab" data-tab="global" onclick="switchTab('global')">
-                🌍 전국 랭킹
-            </button>
-        </div>
-        
-        <div id="schoolRank" class="rank-list">
-            <div class="loading">⏳ 로딩 중...</div>
-        </div>
-        
-        <div id="globalRank" class="rank-list" style="display: none;">
-            <div class="loading">⏳ 로딩 중...</div>
+        <!-- 전국 랭킹 -->
+        <div id="globalRanking" class="ranking-section" style="display: none;">
+            <div class="loading" id="globalLoading">
+                <div class="spinner"></div>
+                <p>로딩 중...</p>
+            </div>
+            <div id="globalContent" style="display: none;">
+                <div class="category-badge" id="categoryBadge"></div>
+                
+                <div class="ranking-type-tabs">
+                    <div class="ranking-type-tab active" data-type="total">전체 누적</div>
+                    <div class="ranking-type-tab" data-type="weekly">이번 주</div>
+                </div>
+                
+                <div id="totalRankingList"></div>
+                <div id="weeklyRankingList" style="display: none;"></div>
+            </div>
         </div>
     </div>
     
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-item">
+            <div class="nav-icon">📊</div>
+            <div>대시보드</div>
+        </a>
+        <a href="study-log.html" class="nav-item">
+            <div class="nav-icon">✏️</div>
+            <div>학습기록</div>
+        </a>
+        <a href="rivals.html" class="nav-item active">
+            <div class="nav-icon">🏆</div>
+            <div>라이벌</div>
+        </a>
+        <a href="learning-materials.html" class="nav-item">
+            <div class="nav-icon">📚</div>
+            <div>학습자료</div>
+        </a>
+    </nav>
+    
     <script src="api.js"></script>
     <script>
-        if (!isAuthenticated()) {
-            window.location.href = 'index.html';
-        }
-        
-        const user = getCurrentUser();
         let currentTab = 'school';
+        let currentRankingType = 'total';
         
         // 탭 전환
-        function switchTab(tab) {
-            currentTab = tab;
-            
-            document.querySelectorAll('.tab').forEach(t => {
-                t.classList.toggle('active', t.dataset.tab === tab);
-            });
-            
-            document.getElementById('schoolRank').style.display = tab === 'school' ? 'flex' : 'none';
-            document.getElementById('globalRank').style.display = tab === 'global' ? 'flex' : 'none';
-            
-            if (tab === 'global' && document.getElementById('globalRank').innerHTML.includes('로딩')) {
-                loadGlobalRank();
-            }
-        }
-        
-        // 랭킹 아이템 생성
-        function createRankItem(rival, rank, isMe = false) {
-            const item = document.createElement('div');
-            item.className = `rank-item rank-${rank}`;
-            if (isMe) item.classList.add('me');
-            
-            const tierClass = `tier-${rival.tier.toLowerCase()}`;
-            
-            item.innerHTML = `
-                <div class="rank-number">${rank}</div>
-                <div class="rank-avatar">🎓</div>
-                <div class="rank-info">
-                    <div class="rank-name">
-                        ${rival.nickname}${isMe ? ' (나)' : ''}
-                    </div>
-                    <div class="rank-school">${rival.school}</div>
-                    <span class="tier-badge ${tierClass}">${rival.tier}</span>
-                </div>
-                <div class="rank-stats">
-                    <div class="rank-hours">${rival.weeklyHours}h</div>
-                    <div class="rank-label">이번 주</div>
-                </div>
-            `;
-            
-            return item;
-        }
-        
-        // 같은 학교 랭킹
-        async function loadSchoolRank() {
-            const container = document.getElementById('schoolRank');
-            
-            try {
-                const result = await api.getSchoolRivals();
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
                 
-                if (result.success && result.rivals.length > 0) {
-                    container.innerHTML = '';
-                    
-                    result.rivals.forEach((rival, index) => {
-                        const isMe = rival.nickname === user.nickname;
-                        container.appendChild(createRankItem(rival, index + 1, isMe));
-                    });
+                currentTab = tab.dataset.tab;
+                
+                document.getElementById('schoolRanking').style.display = currentTab === 'school' ? 'block' : 'none';
+                document.getElementById('globalRanking').style.display = currentTab === 'global' ? 'block' : 'none';
+                
+                if (currentTab === 'school') {
+                    loadSchoolRanking();
                 } else {
-                    container.innerHTML = `
-                        <div class="empty">
-                            <div class="empty-icon">😊</div>
-                            <div class="empty-text">
-                                같은 학교에 아직 친구가 없어요.<br>
-                                친구들을 초대해보세요!
-                            </div>
+                    loadGlobalRanking();
+                }
+            });
+        });
+        
+        // 랭킹 타입 전환 (전체/주간)
+        document.querySelectorAll('.ranking-type-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.ranking-type-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                currentRankingType = tab.dataset.type;
+                
+                document.getElementById('totalRankingList').style.display = currentRankingType === 'total' ? 'block' : 'none';
+                document.getElementById('weeklyRankingList').style.display = currentRankingType === 'weekly' ? 'block' : 'none';
+            });
+        });
+        
+        // 학교 내 랭킹 로드
+        async function loadSchoolRanking() {
+            try {
+                document.getElementById('schoolLoading').style.display = 'block';
+                document.getElementById('schoolContent').style.display = 'none';
+                
+                const data = await api.getSchoolRivals();
+                
+                document.getElementById('schoolLoading').style.display = 'none';
+                document.getElementById('schoolContent').style.display = 'block';
+                
+                const list = document.getElementById('schoolRankingList');
+                
+                if (data.rivals.length === 0) {
+                    list.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">😊</div>
+                            <p>아직 같은 학교에 다른 사용자가 없어요</p>
                         </div>
                     `;
+                    return;
                 }
+                
+                list.innerHTML = data.rivals.map(user => `
+                    <div class="ranking-card ${user.isCurrentUser ? 'current-user' : ''}">
+                        <div class="rank ${user.rank === 1 ? 'gold' : user.rank === 2 ? 'silver' : user.rank === 3 ? 'bronze' : ''}">${user.rank}</div>
+                        <div class="user-info">
+                            <div class="nickname">${user.nickname} ${user.isCurrentUser ? '(나)' : ''}</div>
+                            <div class="school-info">${user.schoolLevel}</div>
+                        </div>
+                        <div class="stats">
+                            <div class="hours">${user.totalHours}시간</div>
+                            <div class="label">전체</div>
+                        </div>
+                        <div class="stats">
+                            <div class="hours">${user.weeklyHours}시간</div>
+                            <div class="label">이번 주</div>
+                        </div>
+                    </div>
+                `).join('');
                 
             } catch (error) {
                 console.error('학교 랭킹 로드 실패:', error);
-                container.innerHTML = `
-                    <div class="empty">
-                        <div class="empty-icon">❌</div>
-                        <div class="empty-text">랭킹을 불러오지 못했어요</div>
+                document.getElementById('schoolLoading').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>랭킹을 불러올 수 없습니다</p>
                     </div>
                 `;
             }
         }
         
-        // 전국 랭킹
-        async function loadGlobalRank() {
-            const container = document.getElementById('globalRank');
-            
+        // 전국 랭킹 로드
+        async function loadGlobalRanking() {
             try {
-                const result = await api.getGlobalRank();
+                document.getElementById('globalLoading').style.display = 'block';
+                document.getElementById('globalContent').style.display = 'none';
                 
-                if (result.success && result.rivals.length > 0) {
-                    container.innerHTML = '';
-                    
-                    result.rivals.forEach((rival, index) => {
-                        const isMe = rival.nickname === user.nickname;
-                        container.appendChild(createRankItem(rival, index + 1, isMe));
-                    });
-                } else {
-                    container.innerHTML = `
-                        <div class="empty">
-                            <div class="empty-icon">🚀</div>
-                            <div class="empty-text">
-                                아직 랭킹이 없어요.<br>
-                                학습 기록을 시작해보세요!
-                            </div>
+                const data = await api.getGlobalRank();
+                
+                document.getElementById('globalLoading').style.display = 'none';
+                document.getElementById('globalContent').style.display = 'block';
+                
+                // 카테고리 표시
+                document.getElementById('categoryBadge').textContent = `${data.schoolCategory} 랭킹`;
+                
+                // 전체 누적 랭킹
+                const totalList = document.getElementById('totalRankingList');
+                if (data.totalRanking.length === 0) {
+                    totalList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">😊</div>
+                            <p>아직 랭킹 데이터가 없어요</p>
                         </div>
                     `;
+                } else {
+                    totalList.innerHTML = data.totalRanking.map(user => `
+                        <div class="ranking-card ${user.isCurrentUser ? 'current-user' : ''}">
+                            <div class="rank ${user.rank === 1 ? 'gold' : user.rank === 2 ? 'silver' : user.rank === 3 ? 'bronze' : ''}">${user.rank}</div>
+                            <div class="user-info">
+                                <div class="nickname">${user.nickname} ${user.isCurrentUser ? '(나)' : ''}</div>
+                                <div class="school-info">${user.school} · ${user.region}</div>
+                            </div>
+                            <div class="stats">
+                                <div class="hours">${user.totalHours}시간</div>
+                                <div class="label">전체 누적</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                // 이번 주 랭킹
+                const weeklyList = document.getElementById('weeklyRankingList');
+                if (data.weeklyRanking.length === 0) {
+                    weeklyList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">😊</div>
+                            <p>아직 이번 주 랭킹 데이터가 없어요</p>
+                        </div>
+                    `;
+                } else {
+                    weeklyList.innerHTML = data.weeklyRanking.map(user => `
+                        <div class="ranking-card ${user.isCurrentUser ? 'current-user' : ''}">
+                            <div class="rank ${user.rank === 1 ? 'gold' : user.rank === 2 ? 'silver' : user.rank === 3 ? 'bronze' : ''}">${user.rank}</div>
+                            <div class="user-info">
+                                <div class="nickname">${user.nickname} ${user.isCurrentUser ? '(나)' : ''}</div>
+                                <div class="school-info">${user.school} · ${user.region}</div>
+                            </div>
+                            <div class="stats">
+                                <div class="hours">${user.weeklyHours}시간</div>
+                                <div class="label">이번 주</div>
+                            </div>
+                        </div>
+                    `).join('');
                 }
                 
             } catch (error) {
                 console.error('전국 랭킹 로드 실패:', error);
-                container.innerHTML = `
-                    <div class="empty">
-                        <div class="empty-icon">❌</div>
-                        <div class="empty-text">랭킹을 불러오지 못했어요</div>
+                document.getElementById('globalLoading').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>랭킹을 불러올 수 없습니다</p>
                     </div>
                 `;
             }
         }
         
         // 초기 로드
-        loadSchoolRank();
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!isAuthenticated()) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            loadSchoolRanking();
+        });
     </script>
 </body>
 </html>
