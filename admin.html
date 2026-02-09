@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 공부.성장</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-section {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 100px auto;
+        }
+
+        .login-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .tabs {
+            background: white;
+            padding: 8px;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: #666;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .btn-delete {
+            padding: 6px 12px;
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+
+        .btn-approve {
+            padding: 6px 12px;
+            background: #dcfce7;
+            color: #16a34a;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .btn-reject {
+            padding: 6px 12px;
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .report-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #fef3c7;
+            color: #ca8a04;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="loginSection" class="login-section">
+        <div class="login-title">🔐 관리자 로그인</div>
+        <div class="form-group">
+            <label class="form-label">비밀번호</label>
+            <input type="password" id="adminPassword" placeholder="관리자 비밀번호 입력">
+        </div>
+        <button class="btn btn-primary" onclick="login()">로그인</button>
+    </div>
+
+    <div id="adminSection" class="container hidden">
+        <div class="header">
+            <h1>🛡️ 관리자 대시보드</h1>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">총 사용자</div>
+                <div class="stat-value" id="totalUsers">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">총 퀴즈</div>
+                <div class="stat-value" id="totalQuizzes">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">대기 중인 신고</div>
+                <div class="stat-value" id="pendingReports">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">오늘 생성된 퀴즈</div>
+                <div class="stat-value" id="todayQuizzes">0</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('reports')">⚠️ 신고 목록</button>
+            <button class="tab" onclick="switchTab('quizzes')">📋 전체 퀴즈</button>
+        </div>
+
+        <div class="card">
+            <div id="reportsContent">
+                <h3 style="margin-bottom: 20px;">신고된 퀴즈</h3>
+                <table id="reportsTable">
+                    <thead>
+                        <tr>
+                            <th>퀴즈 제목</th>
+                            <th>작성자</th>
+                            <th>신고 사유</th>
+                            <th>신고 수</th>
+                            <th>신고 시간</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsBody"></tbody>
+                </table>
+            </div>
+
+            <div id="quizzesContent" class="hidden">
+                <h3 style="margin-bottom: 20px;">전체 퀴즈 목록</h3>
+                <table id="quizzesTable">
+                    <thead>
+                        <tr>
+                            <th>제목</th>
+                            <th>작성자</th>
+                            <th>조회수</th>
+                            <th>신고 수</th>
+                            <th>생성일</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quizzesBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://gongbu-grow-backend-production.up.railway.app/api';
+        let adminPassword = '';
+
+        async function login() {
+            const password = document.getElementById('adminPassword').value;
+            
+            if (!password) {
+                alert('비밀번호를 입력하세요.');
+                return;
+            }
+
+            try {
+                // 통계 API로 인증 테스트
+                const response = await fetch(`${API_BASE_URL}/admin/stats`, {
+                    headers: {
+                        'admin_password': password
+                    }
+                });
+
+                if (response.ok) {
+                    adminPassword = password;
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('adminSection').classList.remove('hidden');
+                    loadStats();
+                    loadReports();
+                } else {
+                    alert('비밀번호가 올바르지 않습니다.');
+                }
+            } catch (error) {
+                console.error('로그인 오류:', error);
+                alert('로그인에 실패했습니다.');
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/stats`, {
+                    headers: { 'admin_password': adminPassword }
+                });
+                const stats = await response.json();
+
+                document.getElementById('totalUsers').textContent = stats.total_users;
+                document.getElementById('totalQuizzes').textContent = stats.total_quizzes;
+                document.getElementById('pendingReports').textContent = stats.pending_reports;
+                document.getElementById('todayQuizzes').textContent = stats.today_quizzes;
+            } catch (error) {
+                console.error('통계 로드 오류:', error);
+            }
+        }
+
+        async function loadReports() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/reports?status=pending`, {
+                    headers: { 'admin_password': adminPassword }
+                });
+                const data = await response.json();
+
+                const tbody = document.getElementById('reportsBody');
+                tbody.innerHTML = '';
+
+                if (data.reports.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #999;">신고된 퀴즈가 없습니다.</td></tr>';
+                    return;
+                }
+
+                data.reports.forEach(report => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${report.quiz_title}</td>
+                        <td>${report.quiz_author}</td>
+                        <td>${report.reason}</td>
+                        <td><span class="report-badge">${report.report_count}건</span></td>
+                        <td>${new Date(report.reported_at).toLocaleString('ko-KR')}</td>
+                        <td>
+                            <button class="btn-approve" onclick="approveReport(${report.report_id}, ${report.quiz_id})">승인 & 삭제</button>
+                            <button class="btn-reject" onclick="rejectReport(${report.report_id})">거부</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('신고 목록 로드 오류:', error);
+            }
+        }
+
+        async function loadQuizzes() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/quizzes`, {
+                    headers: { 'admin_password': adminPassword }
+                });
+                const data = await response.json();
+
+                const tbody = document.getElementById('quizzesBody');
+                tbody.innerHTML = '';
+
+                data.quizzes.forEach(quiz => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${quiz.title}</td>
+                        <td>${quiz.nickname}</td>
+                        <td>${quiz.view_count}</td>
+                        <td>${quiz.report_count > 0 ? `<span class="report-badge">${quiz.report_count}건</span>` : '0'}</td>
+                        <td>${new Date(quiz.created_at).toLocaleDateString('ko-KR')}</td>
+                        <td>
+                            <button class="btn-delete" onclick="deleteQuiz(${quiz.id})">삭제</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('퀴즈 목록 로드 오류:', error);
+            }
+        }
+
+        async function approveReport(reportId, quizId) {
+            if (!confirm('신고를 승인하고 퀴즈를 삭제하시겠습니까?')) return;
+
+            try {
+                await fetch(`${API_BASE_URL}/admin/reports/${reportId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'admin_password': adminPassword
+                    },
+                    body: JSON.stringify({
+                        status: 'approved',
+                        action: 'delete_quiz'
+                    })
+                });
+
+                alert('신고가 승인되고 퀴즈가 삭제되었습니다.');
+                loadStats();
+                loadReports();
+            } catch (error) {
+                console.error('승인 오류:', error);
+                alert('처리 중 오류가 발생했습니다.');
+            }
+        }
+
+        async function rejectReport(reportId) {
+            if (!confirm('신고를 거부하시겠습니까?')) return;
+
+            try {
+                await fetch(`${API_BASE_URL}/admin/reports/${reportId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'admin_password': adminPassword
+                    },
+                    body: JSON.stringify({ status: 'rejected' })
+                });
+
+                alert('신고가 거부되었습니다.');
+                loadReports();
+            } catch (error) {
+                console.error('거부 오류:', error);
+                alert('처리 중 오류가 발생했습니다.');
+            }
+        }
+
+        async function deleteQuiz(quizId) {
+            if (!confirm('이 퀴즈를 삭제하시겠습니까?')) return;
+
+            try {
+                await fetch(`${API_BASE_URL}/admin/quizzes/${quizId}`, {
+                    method: 'DELETE',
+                    headers: { 'admin_password': adminPassword }
+                });
+
+                alert('퀴즈가 삭제되었습니다.');
+                loadStats();
+                loadQuizzes();
+            } catch (error) {
+                console.error('삭제 오류:', error);
+                alert('삭제 중 오류가 발생했습니다.');
+            }
+        }
+
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (tab === 'reports') {
+                document.getElementById('reportsContent').classList.remove('hidden');
+                document.getElementById('quizzesContent').classList.add('hidden');
+                loadReports();
+            } else {
+                document.getElementById('reportsContent').classList.add('hidden');
+                document.getElementById('quizzesContent').classList.remove('hidden');
+                loadQuizzes();
+            }
+        }
+    </script>
+</body>
+</html>

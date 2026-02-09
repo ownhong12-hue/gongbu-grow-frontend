@@ -836,9 +836,10 @@
                     <div class="result-score">${score} / ${total}</div>
                     <div class="result-message">${message}</div>
                     <p style="color: #666; margin-bottom: 30px;">정답률: ${percentage}%</p>
-                    <div style="display: flex; gap: 12px; justify-content: center;">
+                    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
                         <button class="btn btn-secondary" onclick="closeQuizModal()">닫기</button>
                         <button class="btn btn-primary" onclick="openQuiz(${currentQuiz.id})">다시 풀기</button>
+                        <button class="btn btn-secondary" style="background: #fee2e2; color: #dc2626;" onclick="reportQuiz()">⚠️ 신고하기</button>
                     </div>
                 </div>
             `;
@@ -848,6 +849,60 @@
             document.getElementById('quizModal').style.display = 'none';
             currentQuiz = null;
             loadQuizzes(); // 조회수 반영을 위해 새로고침
+        }
+
+        async function reportQuiz() {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            const reasons = [
+                '욕설/비방',
+                '부적절한 내용',
+                '스팸',
+                '저작권 침해',
+                '기타'
+            ];
+
+            const reasonsText = reasons.map((r, i) => `${i + 1}. ${r}`).join('\n');
+            const choice = prompt(`신고 사유를 선택하세요:\n\n${reasonsText}\n\n번호를 입력하세요:`);
+
+            if (!choice) return;
+
+            const reasonIndex = parseInt(choice) - 1;
+            if (reasonIndex < 0 || reasonIndex >= reasons.length) {
+                alert('잘못된 선택입니다.');
+                return;
+            }
+
+            const reason = reasons[reasonIndex];
+            const description = prompt('신고 상세 내용을 입력하세요 (선택):') || '';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/quizzes/${currentQuiz.id}/report`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        reason: reason,
+                        description: description
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('신고가 접수되었습니다. 관리자가 확인 후 조치하겠습니다.');
+                    closeQuizModal();
+                } else {
+                    alert(result.error || '신고 접수에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('신고 오류:', error);
+                alert('신고 중 오류가 발생했습니다.');
+            }
         }
 
         function updateActiveButtons(containerId, activeText) {
