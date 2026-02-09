@@ -346,10 +346,11 @@
     </div>
     
     <script src="schools_data.js"></script>
+    <script src="universities_data.js"></script>
     <script src="api.js"></script>
     
     <script>
-        let schools = schoolsData;
+        let schools = [...schoolsData, ...universitiesData];
         console.log(`✅ ${schools.length}개 학교 데이터 로드 완료!`);
         
         const schoolLevelSelect = document.getElementById('schoolLevel');
