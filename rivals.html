@@ -517,7 +517,7 @@
                 document.getElementById('globalLoading').style.display = 'block';
                 document.getElementById('globalContent').style.display = 'none';
                 
-                const data = await api.getGlobalRank();
+                const data = await api.getGlobalRank(currentSchoolLevel);
                 globalData = data;
                 
                 document.getElementById('globalLoading').style.display = 'none';
@@ -554,11 +554,7 @@
                 `;
             } else {
                 // 학교급 필터링
-                const filtered = globalData.totalRanking.filter(user => 
-                    user.schoolLevel && user.schoolLevel.includes(currentSchoolLevel)
-                ).slice(0, 100);  // 상위 100명
-                
-                totalList.innerHTML = filtered.map((user, index) => {
+                totalList.innerHTML = globalData.totalRanking.map((user, index) => {
                     const rank = index + 1;
                     return `
                         <div class="ranking-card ${user.isCurrentUser ? 'current-user' : ''}">
@@ -587,11 +583,7 @@
                 `;
             } else {
                 // 학교급 필터링
-                const filtered = globalData.weeklyRanking.filter(user => 
-                    user.schoolLevel && user.schoolLevel.includes(currentSchoolLevel)
-                ).slice(0, 100);  // 상위 100명
-                
-                weeklyList.innerHTML = filtered.map((user, index) => {
+                weeklyList.innerHTML = globalData.weeklyRanking.map((user, index) => {
                     const rank = index + 1;
                     return `
                         <div class="ranking-card ${user.isCurrentUser ? 'current-user' : ''}">
