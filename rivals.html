@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>라이벌 - 공부.성장</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --bg: #0f172a;
+            --bg-light: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border);
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* 학교급 탭 (초/중/고/대학/대학원) */
+        .school-level-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 15px 20px;
+            overflow-x: auto;
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .school-level-tab {
+            padding: 10px 20px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .school-level-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: transparent;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 주간/누적 탭 */
+        .ranking-type-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .ranking-type-tab {
+            flex: 1;
+            padding: 14px;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        .ranking-type-tab.active {
+            background: linear-gradient(135deg, var(--success), var(--primary));
+            border-color: transparent;
+        }
+        
+        .info-banner {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .total-users {
+            text-align: center;
+            padding: 15px;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .total-users-number {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-left: 8px;
+        }
+        
+        .ranking-card {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s;
+        }
+        
+        .ranking-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+        
+        .ranking-card.current-user {
+            border: 2px solid var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .rank {
+            font-size: 1.5rem;
+            font-weight: 900;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .rank.gold { color: var(--gold); }
+        .rank.silver { color: var(--silver); }
+        .rank.bronze { color: var(--bronze); }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .nickname {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .school-info {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .stats {
+            text-align: right;
+        }
+        
+        .hours {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-light);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            transition: all 0.3s;
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+        }
+        
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏆 라이벌</h1>
+    </div>
+    
+    <!-- 학교급 선택 (초/중/고/대학/대학원) -->
+    <div class="school-level-tabs" id="schoolLevelTabs">
+        <div class="school-level-tab" data-level="초등학교">📘 초등학교</div>
+        <div class="school-level-tab" data-level="중학교">📗 중학교</div>
+        <div class="school-level-tab active" data-level="고등학교">📕 고등학교</div>
+        <div class="school-level-tab" data-level="대학교">🎓 대학교</div>
+        <div class="school-level-tab" data-level="대학원">🎓 대학원</div>
+    </div>
+    
+    <div class="container">
+        <!-- 안내 배너 -->
+        <div class="info-banner">
+            💡 매주 월요일 0시에 주간 랭킹이 초기화됩니다
+        </div>
+        
+        <!-- 주간/누적 탭 -->
+        <div class="ranking-type-tabs">
+            <div class="ranking-type-tab active" data-type="total">전체 누적 랭킹</div>
+            <div class="ranking-type-tab" data-type="weekly">이번 주 랭킹</div>
+        </div>
+        
+        <!-- 총 인원 -->
+        <div class="total-users" id="totalUsers">
+            <span id="currentCategory">고등학교</span> 전체 
+            <span class="total-users-number" id="totalUsersCount">0명</span>
+        </div>
+        
+        <!-- 로딩 -->
+        <div class="loading" id="loadingState">
+            <div class="spinner"></div>
+            <p>로딩 중...</p>
+        </div>
+        
+        <!-- 랭킹 리스트 -->
+        <div id="rankingList" style="display: none;"></div>
+    </div>
+    
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-item">
+            <div class="nav-icon">📊</div>
+            <div>대시보드</div>
+        </a>
+        <a href="study-log.html" class="nav-item">
+            <div class="nav-icon">✏️</div>
+            <div>학습기록</div>
+        </a>
+        <a href="rivals.html" class="nav-item active">
+            <div class="nav-icon">🏆</div>
+            <div>라이벌</div>
+        </a>
+        <a href="learning-materials.html" class="nav-item">
+            <div class="nav-icon">📚</div>
+            <div>학습자료</div>
+        </a>
+    </nav>
+    
+    <script src="api.js"></script>
+    <script>
+        let currentSchoolLevel = '고등학교';  // 기본값
+        let currentRankingType = 'total';
+        let rankingData = null;
+        
+        // 학교급 탭 전환
+        document.querySelectorAll('.school-level-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.school-level-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                currentSchoolLevel = tab.dataset.level;
+                loadRankingData();
+            });
+        });
+        
+        // 랭킹 타입 전환 (전체/주간)
+        document.querySelectorAll('.ranking-type-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.ranking-type-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                currentRankingType = tab.dataset.type;
+                displayRanking();
+            });
+        });
+        
+        // 랭킹 데이터 로드
+        async function loadRankingData() {
+            try {
+                document.getElementById('loadingState').style.display = 'block';
+                document.getElementById('rankingList').style.display = 'none';
+                
+                const data = await api.getGlobalRank();
+                rankingData = data;
+                
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('rankingList').style.display = 'block';
+                document.getElementById('currentCategory').textContent = currentSchoolLevel;
+                
+                displayRanking();
+                
+            } catch (error) {
+                console.error('랭킹 로드 실패:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>랭킹을 불러올 수 없습니다</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 랭킹 표시
+        function displayRanking() {
+            if (!rankingData) return;
+            
+            const listContainer = document.getElementById('rankingList');
+            
+            // 현재 선택된 랭킹 타입에 따라 데이터 선택
+            const sourceData = currentRankingType === 'total' 
+                ? rankingData.totalRanking 
+                : rankingData.weeklyRanking;
+            
+            if (!sourceData || sourceData.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">😊</div>
+                        <p>아직 ${currentRankingType === 'total' ? '전체' : '이번 주'} 랭킹 데이터가 없어요</p>
+                    </div>
+                `;
+                document.getElementById('totalUsersCount').textContent = '0명';
+                return;
+            }
+            
+            // 학교급 필터링
+            const filtered = sourceData.filter(user => 
+                user.schoolLevel && user.schoolLevel.includes(currentSchoolLevel)
+            );
+            
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">😊</div>
+                        <p>아직 ${currentSchoolLevel} 랭킹 데이터가 없어요</p>
+                    </div>
+                `;
+                document.getElementById('totalUsersCount').textContent = '0명';
+                return;
+            }
+            
+            // 상위 100명만 표시
+            const top100 = filtered.slice(0, 100);
+            
+            // 총 인원 표시
+            document.getElementById('totalUsersCount').textContent = `${filtered.length}명`;
+            
+            // 랭킹 카드 생성
+            listContainer.innerHTML = top100.map((user, index) => {
+                const rank = index + 1;
+                const hours = currentRankingType === 'total' ? user.totalHours : user.weeklyHours;
+                const minutes = currentRankingType === 'total' ? user.totalMinutes : user.weeklyMinutes;
+                
+                return `
+                    <div class="ranking-card ${user.isCurrentUser ? 'current-user' : ''}">
+                        <div class="rank ${rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : ''}">${rank}</div>
+                        <div class="user-info">
+                            <div class="nickname">${user.nickname} ${user.isCurrentUser ? '(나)' : ''}</div>
+                            <div class="school-info">${user.school} · ${user.region}</div>
+                        </div>
+                        <div class="stats">
+                            <div class="hours">${hours}시간</div>
+                            <div class="label">${currentRankingType === 'total' ? '전체 누적' : '이번 주'}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 초기 로드
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!isAuthenticated()) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // 사용자 학교급 자동 선택
+            const user = getCurrentUser();
+            if (user && user.school_level) {
+                if (user.school_level.includes('초등학교')) {
+                    currentSchoolLevel = '초등학교';
+                } else if (user.school_level.includes('중학교')) {
+                    currentSchoolLevel = '중학교';
+                } else if (user.school_level.includes('고등학교')) {
+                    currentSchoolLevel = '고등학교';
+                } else if (user.school_level.includes('대학교')) {
+                    currentSchoolLevel = '대학교';
+                } else if (user.school_level.includes('대학원')) {
+                    currentSchoolLevel = '대학원';
+                }
+                
+                // 해당 탭 활성화
+                document.querySelectorAll('.school-level-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                    if (tab.dataset.level === currentSchoolLevel) {
+                        tab.classList.add('active');
+                    }
+                });
+            }
+            
+            loadRankingData();
+        });
+    </script>
+</body>
+</html>
