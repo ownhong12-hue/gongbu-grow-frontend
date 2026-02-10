@@ -1,11 +1,11 @@
 {
   "name": "공부.성장",
   "short_name": "공부.성장",
-  "description": "학습 기록 및 랭킹 플랫폼",
+  "description": "함께 성장하는 학습 트래커",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#667eea",
+  "background_color": "#0f172a",
+  "theme_color": "#6366f1",
   "orientation": "portrait",
   "icons": [
     {
@@ -20,8 +20,5 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ],
-  "categories": ["education", "productivity"],
-  "lang": "ko",
-  "dir": "ltr"
+  ]
 }
