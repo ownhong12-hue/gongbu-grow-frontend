@@ -118,7 +118,8 @@ async getGlobalRank(schoolLevel) {
         headers: { 'Authorization': `Bearer ${token}` }
     });
     return response.json();
-}
+    }
+};
 
 // 인증 상태 확인
 function isAuthenticated() {
