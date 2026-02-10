@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>퀴즈 만들기 - 공부.성장</title>
+    <!-- PWA Manifest -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#6366f1">
+<link rel="apple-touch-icon" href="/icon-192.png">
     <style>
         * {
             margin: 0;
@@ -737,5 +741,15 @@
         // 초기 섹션 표시
         document.getElementById('multipleChoiceSection').style.display = 'block';
     </script>
+    <!-- PWA Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(() => console.log('✅ PWA 등록 성공'))
+      .catch((error) => console.log('❌ PWA 등록 실패:', error));
+  });
+}
+</script>
 </body>
 </html>
