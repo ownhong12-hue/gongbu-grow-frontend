@@ -104,15 +104,21 @@ const api = {
         return response.json();
     },
     
-    // 전국 랭킹
-    async getGlobalRank() {
-        const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-        const response = await fetch(`${API_BASE_URL}/rivals/global`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        return response.json();
+   // 전국 랭킹 - 학교급 파라미터 추가
+async getGlobalRank(schoolLevel) {
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    let url = `${API_BASE_URL}/rivals/global`;
+    
+    // 학교급이 지정되면 쿼리 파라미터로 전달
+    if (schoolLevel) {
+        url += `?schoolLevel=${encodeURIComponent(schoolLevel)}`;
     }
-};
+    
+    const response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+}
 
 // 인증 상태 확인
 function isAuthenticated() {
