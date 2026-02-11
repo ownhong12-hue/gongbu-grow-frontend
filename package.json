@@ -3,10 +3,6 @@
   "version": "2.0.0",
   "description": "공부.성장 프론트엔드 + Serverless API",
   "private": true,
-  "scripts": {
-    "dev": "vercel dev",
-    "build": "vercel build"
-  },
   "dependencies": {
     "pg": "^8.11.0",
     "bcryptjs": "^2.4.3",
