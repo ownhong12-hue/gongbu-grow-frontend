@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/auth",
+      "dest": "/api/auth.js"
+    },
+    {
+      "src": "/api/study-logs",
+      "dest": "/api/study-logs.js"
+    },
+    {
+      "src": "/api/grades",
+      "dest": "/api/grades.js"
+    },
+    {
+      "src": "/api/stats/active",
+      "dest": "/api/stats-active.js"
+    },
+    {
+      "src": "/api/stats/user",
+      "dest": "/api/stats-user.js"
+    },
+    {
+      "src": "/api/rivals/school",
+      "dest": "/api/rivals/school.js"
+    },
+    {
+      "src": "/api/rivals/global",
+      "dest": "/api/rivals/global.js"
+    },
+    {
+      "src": "/api/rivals/top-schools",
+      "dest": "/api/rivals/top-schools.js"
+    },
+    {
+      "src": "/api/quizzes/(.*)",
+      "dest": "/api/quizzes.js"
+    },
+    {
+      "src": "/api/admin/(.*)",
+      "dest": "/api/admin.js"
+    }
+  ]
+}
