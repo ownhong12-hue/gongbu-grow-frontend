@@ -344,6 +344,8 @@
                     <option value="초등">초등</option>
                     <option value="중등">중등</option>
                     <option value="고등">고등</option>
+                     <option value="대학">대학</option>
+    <option value="대학원">대학원</option>
                 </select>
             </div>
             <div class="form-group">
@@ -498,48 +500,68 @@
         }
 
         async function loadGrades() {
-            const schoolLevel = document.getElementById('schoolLevel').value;
-            if (!schoolLevel) return;
+    const schoolLevel = document.getElementById('schoolLevel').value;
+    const select = document.getElementById('grade');
+    
+    if (!schoolLevel) {
+        select.innerHTML = '<option value="">먼저 학교급을 선택하세요</option>';
+        return;
+    }
 
-            try {
-                const response = await fetch(`${API_BASE_URL}/learning-materials/grades?school_level=${schoolLevel}`);
-                const data = await response.json();
-                
-                const select = document.getElementById('grade');
-                select.innerHTML = '<option value="">선택하세요</option>';
-                
-                data.grades.forEach(grade => {
-                    const option = document.createElement('option');
-                    option.value = grade;
-                    option.textContent = `${grade}학년`;
-                    select.appendChild(option);
-                });
-            } catch (error) {
-                console.error('학년 로드 오류:', error);
-            }
-        }
+    select.innerHTML = '<option value="">선택하세요</option>';
+    
+    let grades = [];
+    
+    if (schoolLevel === '초등') {
+        grades = [1, 2, 3, 4, 5, 6];
+    } else if (schoolLevel === '중등') {
+        grades = [1, 2, 3];
+    } else if (schoolLevel === '고등') {
+        grades = [1, 2, 3];
+    } else if (schoolLevel === '대학' || schoolLevel === '대학원' || schoolLevel === '성인') {
+        grades = [1];
+    }
+    
+    grades.forEach(grade => {
+        const option = document.createElement('option');
+        option.value = grade;
+        option.textContent = `${grade}학년`;
+        select.appendChild(option);
+    });
+    
+    loadSubjects();
+}
 
-        async function loadSubjects() {
-            const schoolLevel = document.getElementById('schoolLevel').value;
-            if (!schoolLevel) return;
+       async function loadSubjects() {
+    const schoolLevel = document.getElementById('schoolLevel').value;
+    const select = document.getElementById('subject');
+    
+    if (!schoolLevel) {
+        select.innerHTML = '<option value="">먼저 학교급을 선택하세요</option>';
+        return;
+    }
 
-            try {
-                const response = await fetch(`${API_BASE_URL}/learning-materials/subjects?school_level=${schoolLevel}`);
-                const data = await response.json();
-                
-                const select = document.getElementById('subject');
-                select.innerHTML = '<option value="">선택하세요</option>';
-                
-                data.subjects.forEach(subject => {
-                    const option = document.createElement('option');
-                    option.value = subject;
-                    option.textContent = subject;
-                    select.appendChild(option);
-                });
-            } catch (error) {
-                console.error('과목 로드 오류:', error);
-            }
-        }
+    select.innerHTML = '<option value="">선택하세요</option>';
+    
+    let subjects = [];
+    
+    if (schoolLevel === '초등') {
+        subjects = ['국어', '수학', '영어', '사회', '과학'];
+    } else if (schoolLevel === '중등') {
+        subjects = ['국어', '영어', '수학', '사회', '과학'];
+    } else if (schoolLevel === '고등') {
+        subjects = ['국어', '영어', '수학', '통합과학', '통합사회'];
+    } else if (schoolLevel === '대학' || schoolLevel === '대학원' || schoolLevel === '성인') {
+        subjects = ['전공', '교양', '어학', '자격증', '기타'];
+    }
+    
+    subjects.forEach(subject => {
+        const option = document.createElement('option');
+        option.value = subject;
+        option.textContent = subject;
+        select.appendChild(option);
+    });
+}
 
         function addQuestion() {
             const questionText = document.getElementById('questionText').value.trim();
