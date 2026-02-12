@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>퀴즈 만들기 - 공부.성장</title>
-    <!-- PWA Manifest -->
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#6366f1">
-<link rel="apple-touch-icon" href="/icon-192.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <link rel="apple-touch-icon" href="/icon-192.png">
     <style>
         * {
             margin: 0;
@@ -123,14 +122,20 @@
             resize: vertical;
         }
 
-        .quiz-type-selector {
-            display: flex;
+        .school-level-selector {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
             gap: 12px;
             margin-bottom: 20px;
         }
 
-        .type-card {
-            flex: 1;
+        @media (max-width: 768px) {
+            .school-level-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .level-card {
             padding: 20px;
             border: 3px solid #e5e7eb;
             border-radius: 12px;
@@ -139,21 +144,21 @@
             transition: all 0.3s;
         }
 
-        .type-card:hover {
+        .level-card:hover {
             border-color: #667eea;
         }
 
-        .type-card.active {
+        .level-card.active {
             border-color: #667eea;
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
         }
 
-        .type-icon {
+        .level-icon {
             font-size: 32px;
             margin-bottom: 8px;
         }
 
-        .type-name {
+        .level-name {
             font-weight: 600;
             color: #333;
         }
@@ -255,34 +260,6 @@
             background: #fecaca;
         }
 
-        .submit-section {
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-top: 30px;
-        }
-
-        .submit-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .submit-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .submit-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -309,62 +286,36 @@
             </div>
         </div>
 
-        <!-- 퀴즈 타입 선택 -->
+        <!-- 학교급 선택 -->
         <div class="card">
-            <div class="card-title">1️⃣ 퀴즈 타입 선택</div>
-            <div class="quiz-type-selector">
-                <div class="type-card active" onclick="selectQuizType('normal')">
-                    <div class="type-icon">📚</div>
-                    <div class="type-name">일반 퀴즈</div>
-                    <div style="font-size: 12px; color: #999; margin-top: 4px;">공부 퀴즈</div>
+            <div class="card-title">1️⃣ 학교급 선택</div>
+            <div class="school-level-selector">
+                <div class="level-card active" onclick="selectSchoolLevel('초등', this)">
+                    <div class="level-icon">📚</div>
+                    <div class="level-name">초등</div>
                 </div>
-                <div class="type-card" onclick="selectQuizType('nonsense')">
-                    <div class="type-icon">😄</div>
-                    <div class="type-name">난센스 퀴즈</div>
-                    <div style="font-size: 12px; color: #999; margin-top: 4px;">재미있는 퀴즈</div>
+                <div class="level-card" onclick="selectSchoolLevel('중등', this)">
+                    <div class="level-icon">📖</div>
+                    <div class="level-name">중등</div>
                 </div>
-            </div>
-        </div>
-
-        <!-- 퀴즈 정보 입력 (일반 퀴즈만) -->
-        <div class="card" id="quizInfoSection">
-            <div class="card-title">2️⃣ 퀴즈 정보</div>
-            <div class="form-group">
-                <label class="form-label">제목</label>
-                <input type="text" id="quizTitle" placeholder="예: 곱셈구구 퀴즈">
-            </div>
-            <div class="form-group">
-                <label class="form-label">설명 (선택)</label>
-                <textarea id="quizDescription" placeholder="퀴즈에 대한 간단한 설명을 입력하세요"></textarea>
-            </div>
-            <div class="form-group">
-                <label class="form-label">학교급</label>
-                <select id="schoolLevel" onchange="loadGrades()">
-                    <option value="">선택하세요</option>
-                    <option value="초등">초등</option>
-                    <option value="중등">중등</option>
-                    <option value="고등">고등</option>
-                     <option value="대학">대학</option>
-    <option value="대학원">대학원</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">학년</label>
-                <select id="grade" onchange="loadSubjects()">
-                    <option value="">먼저 학교급을 선택하세요</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">과목</label>
-                <select id="subject">
-                    <option value="">먼저 학년을 선택하세요</option>
-                </select>
+                <div class="level-card" onclick="selectSchoolLevel('고등', this)">
+                    <div class="level-icon">📝</div>
+                    <div class="level-name">고등</div>
+                </div>
+                <div class="level-card" onclick="selectSchoolLevel('대학교', this)">
+                    <div class="level-icon">🎓</div>
+                    <div class="level-name">대학교</div>
+                </div>
+                <div class="level-card" onclick="selectSchoolLevel('대학원', this)">
+                    <div class="level-icon">🔬</div>
+                    <div class="level-name">대학원</div>
+                </div>
             </div>
         </div>
 
         <!-- 문제 추가 -->
         <div class="card">
-            <div class="card-title">3️⃣ 문제 추가</div>
+            <div class="card-title">2️⃣ 문제 추가</div>
             
             <!-- 답안 유형 선택 -->
             <div class="form-group">
@@ -431,18 +382,8 @@
         </div>
 
         <!-- 퀴즈 업로드 -->
-        <div class="submit-section">
-            <div class="submit-title">4️⃣ 퀴즈 업로드</div>
-            <div class="submit-grid">
-                <div class="form-group">
-                    <label class="form-label">난이도</label>
-                    <select id="difficulty">
-                        <option value="easy">쉬움</option>
-                        <option value="medium">보통</option>
-                        <option value="hard">어려움</option>
-                    </select>
-                </div>
-            </div>
+        <div class="card">
+            <div class="card-title">3️⃣ 퀴즈 업로드</div>
             <button class="btn btn-primary" style="width: 100%;" onclick="uploadQuiz()">
                 🚀 퀴즈 업로드하기
             </button>
@@ -451,10 +392,8 @@
 
     <script src="api.js"></script>
     <script>
-        const API_BASE_URL = 'https://gongbu-grow-backend-production.up.railway.app/api';
-        
-        let quizType = 'normal';
-        let answerType = 'multiple';  // 'multiple' 또는 'subjective'
+        let schoolLevel = '초등';
+        let answerType = 'multiple';
         let questions = [];
 
         // 로그인 체크
@@ -466,20 +405,12 @@
             }
         });
 
-        function selectQuizType(type) {
-            quizType = type;
+        function selectSchoolLevel(level, element) {
+            schoolLevel = level;
             
-            const cards = document.querySelectorAll('.type-card');
+            const cards = document.querySelectorAll('.level-card');
             cards.forEach(card => card.classList.remove('active'));
-            event.target.closest('.type-card').classList.add('active');
-
-            // 난센스 퀴즈면 퀴즈 정보 섹션 숨기기
-            const infoSection = document.getElementById('quizInfoSection');
-            if (type === 'nonsense') {
-                infoSection.style.display = 'none';
-            } else {
-                infoSection.style.display = 'block';
-            }
+            element.classList.add('active');
         }
 
         function selectAnswerType(type) {
@@ -489,7 +420,6 @@
             btns.forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
-            // 섹션 표시/숨기기
             if (type === 'multiple') {
                 document.getElementById('multipleChoiceSection').style.display = 'block';
                 document.getElementById('subjectiveSection').style.display = 'none';
@@ -498,70 +428,6 @@
                 document.getElementById('subjectiveSection').style.display = 'block';
             }
         }
-
-        async function loadGrades() {
-    const schoolLevel = document.getElementById('schoolLevel').value;
-    const select = document.getElementById('grade');
-    
-    if (!schoolLevel) {
-        select.innerHTML = '<option value="">먼저 학교급을 선택하세요</option>';
-        return;
-    }
-
-    select.innerHTML = '<option value="">선택하세요</option>';
-    
-    let grades = [];
-    
-    if (schoolLevel === '초등') {
-        grades = [1, 2, 3, 4, 5, 6];
-    } else if (schoolLevel === '중등') {
-        grades = [1, 2, 3];
-    } else if (schoolLevel === '고등') {
-        grades = [1, 2, 3];
-    } else if (schoolLevel === '대학' || schoolLevel === '대학원' || schoolLevel === '성인') {
-        grades = [1];
-    }
-    
-    grades.forEach(grade => {
-        const option = document.createElement('option');
-        option.value = grade;
-        option.textContent = `${grade}학년`;
-        select.appendChild(option);
-    });
-    
-    loadSubjects();
-}
-
-       async function loadSubjects() {
-    const schoolLevel = document.getElementById('schoolLevel').value;
-    const select = document.getElementById('subject');
-    
-    if (!schoolLevel) {
-        select.innerHTML = '<option value="">먼저 학교급을 선택하세요</option>';
-        return;
-    }
-
-    select.innerHTML = '<option value="">선택하세요</option>';
-    
-    let subjects = [];
-    
-    if (schoolLevel === '초등') {
-        subjects = ['국어', '수학', '영어', '사회', '과학'];
-    } else if (schoolLevel === '중등') {
-        subjects = ['국어', '영어', '수학', '사회', '과학'];
-    } else if (schoolLevel === '고등') {
-        subjects = ['국어', '영어', '수학', '통합과학', '통합사회'];
-    } else if (schoolLevel === '대학' || schoolLevel === '대학원' || schoolLevel === '성인') {
-        subjects = ['전공', '교양', '어학', '자격증', '기타'];
-    }
-    
-    subjects.forEach(subject => {
-        const option = document.createElement('option');
-        option.value = subject;
-        option.textContent = subject;
-        select.appendChild(option);
-    });
-}
 
         function addQuestion() {
             const questionText = document.getElementById('questionText').value.trim();
@@ -574,7 +440,6 @@
             let question;
 
             if (answerType === 'multiple') {
-                // 객관식
                 const option0 = document.getElementById('option0').value.trim();
                 const option1 = document.getElementById('option1').value.trim();
                 const option2 = document.getElementById('option2').value.trim();
@@ -595,10 +460,9 @@
                     type: 'multiple',
                     question: questionText,
                     options: [option0, option1, option2, option3],
-                    answer: answer - 1  // 0-indexed
+                    answer: answer - 1
                 };
             } else {
-                // 주관식
                 const subjectiveAnswer = document.getElementById('subjectiveAnswer').value.trim();
 
                 if (!subjectiveAnswer) {
@@ -701,43 +565,21 @@
                 return;
             }
 
-            let quizData = {
+            const quizData = {
                 user_id: user.userId,
                 nickname: user.nickname || '익명',
-                quiz_type: quizType,
-                difficulty: document.getElementById('difficulty').value,
+                quiz_type: 'normal',
+                title: `${schoolLevel} 퀴즈`,
+                description: `${schoolLevel} 학생을 위한 퀴즈`,
+                school_level: schoolLevel,
+                grade: 1,
+                subject: '기타',
+                difficulty: 'medium',
                 quiz_data: { questions }
             };
 
-            if (quizType === 'normal') {
-                const title = document.getElementById('quizTitle').value.trim();
-                const description = document.getElementById('quizDescription').value.trim();
-                const schoolLevel = document.getElementById('schoolLevel').value;
-                const grade = document.getElementById('grade').value;
-                const subject = document.getElementById('subject').value;
-
-                if (!title || !schoolLevel || !grade || !subject) {
-                    alert('제목, 학교급, 학년, 과목을 모두 입력해주세요!');
-                    return;
-                }
-
-                quizData.title = title;
-                quizData.description = description;
-                quizData.school_level = schoolLevel;
-                quizData.grade = parseInt(grade);
-                quizData.subject = subject;
-            } else {
-                // 난센스 퀴즈
-                const title = document.getElementById('questionText').value.trim() || '난센스 퀴즈';
-                quizData.title = title;
-                quizData.description = '난센스 퀴즈';
-                quizData.school_level = '초등';
-                quizData.grade = 1;
-                quizData.subject = '기타';
-            }
-
             try {
-                const response = await fetch(`${API_BASE_URL}/quizzes/upload`, {
+                const response = await fetch('/api/quizzes/upload', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -763,8 +605,7 @@
         // 초기 섹션 표시
         document.getElementById('multipleChoiceSection').style.display = 'block';
     </script>
-    <!-- PWA Service Worker -->
-<script>
+    <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
