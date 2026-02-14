@@ -100,10 +100,10 @@ module.exports = async (req, res) => {
 
             const result = await query(`
                 SELECT 
-                    id, user_id, nickname, quiz_type, school_level, grade, subject,
-                    title, description, difficulty,
-                    view_count, solve_count, like_count, created_at
-                FROM shared_quizzes
+    id, user_id, nickname, quiz_type, school_level, grade, subject,
+    title, description, difficulty, quiz_data,
+    view_count, solve_count, like_count, created_at
+FROM shared_quizzes
                 ${whereClause}
                 ${orderBy}
                 LIMIT $${paramIndex}
