@@ -656,7 +656,7 @@
             
             loading.style.display = 'none';
             
-            if (!quizzes || quizzes.length === 0) {
+            if (!quizzes || !Array.isArray(quizzes) || quizzes.length === 0) {
                 grid.style.display = 'none';
                 empty.style.display = 'block';
                 return;
@@ -927,9 +927,11 @@
         }
 
         init();
-        function renderQuizPreview(quizData) {
+       function renderQuizPreview(quizData) {
     try {
-        const questions = quizData.questions || [];
+        const data = typeof quizData === 'string' ? JSON.parse(quizData) : quizData;
+        const questions = data.questions || [];
+        
         if (questions.length === 0) return '<div class="quiz-preview">문제 없음</div>';
         
         const preview = questions.slice(0, 3).map((q, i) => 
@@ -937,7 +939,8 @@
         ).join('<br>');
         
         return `<div class="quiz-preview">${preview}</div>`;
-    } catch {
+    } catch (error) {
+        console.error('Preview error:', error);
         return '<div class="quiz-preview">미리보기 불가</div>';
     }
 }
