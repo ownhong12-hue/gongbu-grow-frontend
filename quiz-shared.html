@@ -709,7 +709,7 @@
 
         async function openQuiz(quizId) {
             try {
-                const response = await fetch(`${API_BASE_URL}/quizzes/${quizId}`);
+                const response = await fetch( `${ API_BASE_URL }/quizzes/${ quizId }` );
                 const data = await response.json();
                 
                 currentQuiz = data.quiz;
