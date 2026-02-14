@@ -1,14 +1,13 @@
-// Updated
-const { query } = require('./_lib/database');
-const { checkQuizProfanity } = require('./_lib/profanity');
+
+const { query } = require('../_lib/database');  // ← ../로 변경!
+const { checkQuizProfanity } = require('../_lib/profanity');  // ← ../로 변경!
 
 module.exports = async (req, res) => {
     const path = req.url.split('?')[0];
     const pathParts = path.split('/').filter(p => p);
     
-    // POST /api/quizzes/upload
-   if (req.method === 'POST') {
-
+    // POST /api/quizzes (퀴즈 업로드)
+    if (req.method === 'POST' && pathParts.length === 2) {
         try {
             const {
                 user_id, nickname, quiz_type = 'normal',
@@ -101,10 +100,10 @@ module.exports = async (req, res) => {
 
             const result = await query(`
                 SELECT 
-    id, user_id, nickname, quiz_type, school_level, grade, subject,
-    title, description, difficulty, quiz_data,
-    view_count, solve_count, like_count, created_at
-FROM shared_quizzes
+                    id, user_id, nickname, quiz_type, school_level, grade, subject,
+                    title, description, difficulty, quiz_data,
+                    view_count, solve_count, like_count, created_at
+                FROM shared_quizzes
                 ${whereClause}
                 ${orderBy}
                 LIMIT $${paramIndex}
@@ -120,59 +119,61 @@ FROM shared_quizzes
         }
     }
     
-   if (req.method === 'GET' && pathParts.length === 3) {
-    try {
-        const quizId = pathParts[2];
-        
-        const result = await query(`
-            SELECT * FROM shared_quizzes
-            WHERE id = $1
-        `, [quizId]);
-        
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: '퀴즈를 찾을 수 없습니다.' });
+    // GET /api/quizzes/:id (단일 퀴즈)
+    if (req.method === 'GET' && pathParts.length === 3 && pathParts[1] === 'quizzes') {
+        try {
+            const quizId = pathParts[2];
+            
+            const result = await query(`
+                SELECT * FROM shared_quizzes
+                WHERE id = $1
+            `, [quizId]);
+            
+            if (result.rows.length === 0) {
+                return res.status(404).json({ error: '퀴즈를 찾을 수 없습니다.' });
+            }
+            
+            // 조회수 증가
+            await query(`
+                UPDATE shared_quizzes
+                SET view_count = view_count + 1
+                WHERE id = $1
+            `, [quizId]);
+            
+            return res.json({
+                success: true,
+                quiz: result.rows[0]
+            });
+        } catch (error) {
+            console.error('퀴즈 조회 오류:', error);
+            return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
-        
-        // 조회수 증가
-        await query(`
-            UPDATE shared_quizzes
-            SET view_count = view_count + 1
-            WHERE id = $1
-        `, [quizId]);
-        
-        return res.json({
-            success: true,
-            quiz: result.rows[0]
-        });
-    } catch (error) {
-        console.error('퀴즈 조회 오류:', error);
-        return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
-}
 
-if (req.method === 'GET' && pathParts.length === 4 && pathParts[2] === 'my') {
-    try {
-        const userId = pathParts[3];
-        
-        const result = await query(`
-            SELECT 
-                id, user_id, nickname, quiz_type, school_level, grade, subject,
-                title, description, difficulty, quiz_data,
-                view_count, solve_count, like_count, created_at
-            FROM shared_quizzes
-            WHERE user_id = $1
-            ORDER BY created_at DESC
-        `, [userId]);
-        
-        return res.json({
-            count: result.rows.length,
-            quizzes: result.rows
-        });
-    } catch (error) {
-        console.error('내 퀴즈 조회 오류:', error);
-        return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+    // GET /api/quizzes/my/:userId (내 퀴즈)
+    if (req.method === 'GET' && pathParts.length === 4 && pathParts[1] === 'quizzes' && pathParts[2] === 'my') {
+        try {
+            const userId = pathParts[3];
+            
+            const result = await query(`
+                SELECT 
+                    id, user_id, nickname, quiz_type, school_level, grade, subject,
+                    title, description, difficulty, quiz_data,
+                    view_count, solve_count, like_count, created_at
+                FROM shared_quizzes
+                WHERE user_id = $1
+                ORDER BY created_at DESC
+            `, [userId]);
+            
+            return res.json({
+                count: result.rows.length,
+                quizzes: result.rows
+            });
+        } catch (error) {
+            console.error('내 퀴즈 조회 오류:', error);
+            return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+        }
     }
-}
 
-return res.status(404).json({ error: 'Not found' });
+    return res.status(404).json({ error: 'Not found' });
 };
