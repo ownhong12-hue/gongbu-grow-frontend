@@ -119,5 +119,35 @@ module.exports = async (req, res) => {
         }
     }
     
-    return res.status(404).json({ error: 'Not found' });
+   if (req.method === 'GET' && pathParts.length === 3) {
+    try {
+        const quizId = pathParts[2];
+        
+        const result = await query(`
+            SELECT * FROM shared_quizzes
+            WHERE id = $1
+        `, [quizId]);
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: '퀴즈를 찾을 수 없습니다.' });
+        }
+        
+        // 조회수 증가
+        await query(`
+            UPDATE shared_quizzes
+            SET view_count = view_count + 1
+            WHERE id = $1
+        `, [quizId]);
+        
+        return res.json({
+            success: true,
+            quiz: result.rows[0]
+        });
+    } catch (error) {
+        console.error('퀴즈 조회 오류:', error);
+        return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+    }
+}
+
+return res.status(404).json({ error: 'Not found' });
 };
