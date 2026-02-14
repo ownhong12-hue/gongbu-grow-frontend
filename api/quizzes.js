@@ -149,5 +149,29 @@ FROM shared_quizzes
     }
 }
 
+if (req.method === 'GET' && pathParts.length === 4 && pathParts[2] === 'my') {
+    try {
+        const userId = pathParts[3];
+        
+        const result = await query(`
+            SELECT 
+                id, user_id, nickname, quiz_type, school_level, grade, subject,
+                title, description, difficulty, quiz_data,
+                view_count, solve_count, like_count, created_at
+            FROM shared_quizzes
+            WHERE user_id = $1
+            ORDER BY created_at DESC
+        `, [userId]);
+        
+        return res.json({
+            count: result.rows.length,
+            quizzes: result.rows
+        });
+    } catch (error) {
+        console.error('내 퀴즈 조회 오류:', error);
+        return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+    }
+}
+
 return res.status(404).json({ error: 'Not found' });
 };
