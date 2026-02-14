@@ -428,6 +428,12 @@
             color: #333;
             margin-bottom: 30px;
         }
+        .quiz-preview {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.8;
+    margin: 10px 0;
+}
     </style>
 </head>
 <body>
@@ -679,8 +685,7 @@
                 <div class="quiz-type-badge ${quizTypeClass}">${quizTypeText}</div>
                 <div class="quiz-info">
                     <div class="quiz-category">${quiz.school_level} ${quiz.grade}학년 ${quiz.subject}</div>
-                    <div class="quiz-title">${quiz.title}</div>
-                    ${quiz.description ? `<div class="quiz-description">${quiz.description}</div>` : ''}
+                    ${renderQuizPreview(quiz.quiz_data)}
                     <div class="quiz-author">👤 ${quiz.nickname}</div>
                 </div>
                 <div class="quiz-stats">
@@ -922,6 +927,20 @@
         }
 
         init();
+        function renderQuizPreview(quizData) {
+    try {
+        const questions = quizData.questions || [];
+        if (questions.length === 0) return '<div class="quiz-preview">문제 없음</div>';
+        
+        const preview = questions.slice(0, 3).map((q, i) => 
+            `${i + 1}. ${q.question.substring(0, 40)}${q.question.length > 40 ? '...' : ''}`
+        ).join('<br>');
+        
+        return `<div class="quiz-preview">${preview}</div>`;
+    } catch {
+        return '<div class="quiz-preview">미리보기 불가</div>';
+    }
+}
     </script>
 </body>
 </html>
