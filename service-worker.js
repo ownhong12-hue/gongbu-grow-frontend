@@ -1,11 +1,11 @@
-const CACHE_NAME = 'gongbu-v2';
+const CACHE_NAME = 'gongbu-v3';
 const urlsToCache = [
   '/',
   '/index.html',
   '/dashboard.html',
   '/rivals.html',
   '/study-log.html',
-  '/quiz-maker.html',
+  
   '/learning-materials.html',
   '/api.js',
   '/schools_data.js',
