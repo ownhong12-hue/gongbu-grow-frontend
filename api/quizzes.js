@@ -1,3 +1,4 @@
+// Updated
 const { query } = require('./_lib/database');
 const { checkQuizProfanity } = require('./_lib/profanity');
 
