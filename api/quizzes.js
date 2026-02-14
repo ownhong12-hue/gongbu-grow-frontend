@@ -6,7 +6,8 @@ module.exports = async (req, res) => {
     const pathParts = path.split('/').filter(p => p);
     
     // POST /api/quizzes/upload
-    if (req.method === 'POST' && pathParts[pathParts.length - 1] === 'upload') {
+   if (req.method === 'POST') {
+
         try {
             const {
                 user_id, nickname, quiz_type = 'normal',
