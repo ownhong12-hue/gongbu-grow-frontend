@@ -82,9 +82,9 @@ const api = {
     
     // 통계 조회
     async getActiveStats() {
-        const response = await fetch(`${API_BASE_URL}/stats/active`);
-        return response.json();
-    },
+    const response = await fetch(`${API_BASE_URL}/stats-active`);  // active → stats-active
+    return response.json();
+},
     
     // 사용자 통계
     async getUserStats() {
