@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>글쓰기 - 공부.성장</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #333;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .school-level-selector {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .school-level-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .level-card {
+            padding: 20px;
+            border: 3px solid #e5e7eb;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .level-card:hover {
+            border-color: #667eea;
+        }
+
+        .level-card.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .level-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .level-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 300px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✏️ 글쓰기</h1>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" onclick="location.href='posts.html'">📋 게시판</button>
+                <button class="btn btn-secondary" onclick="location.href='dashboard.html'">🏠 대시보드</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">학교급 선택</div>
+            <div class="school-level-selector">
+                <div class="level-card active" onclick="selectSchoolLevel('초등', this)">
+                    <div class="level-icon">📚</div>
+                    <div class="level-name">초등</div>
+                </div>
+                <div class="level-card" onclick="selectSchoolLevel('중등', this)">
+                    <div class="level-icon">📖</div>
+                    <div class="level-name">중등</div>
+                </div>
+                <div class="level-card" onclick="selectSchoolLevel('고등', this)">
+                    <div class="level-icon">📝</div>
+                    <div class="level-name">고등</div>
+                </div>
+                <div class="level-card" onclick="selectSchoolLevel('대학교', this)">
+                    <div class="level-icon">🎓</div>
+                    <div class="level-name">대학교</div>
+                </div>
+                <div class="level-card" onclick="selectSchoolLevel('대학원', this)">
+                    <div class="level-icon">🔬</div>
+                    <div class="level-name">대학원</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">제목</label>
+                <input type="text" id="title" placeholder="제목을 입력하세요" maxlength="200">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">내용</label>
+                <textarea id="content" placeholder="내용을 입력하세요"></textarea>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="submitPost()">
+                🚀 글 올리기
+            </button>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        let schoolLevel = '초등';
+
+        // 로그인 체크
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('gongbu_token');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                location.href = 'index.html';
+            }
+        });
+
+        function selectSchoolLevel(level, element) {
+            schoolLevel = level;
+            
+            const cards = document.querySelectorAll('.level-card');
+            cards.forEach(card => card.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        async function submitPost() {
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+
+            if (!title) {
+                alert('제목을 입력해주세요!');
+                return;
+            }
+
+            if (!content) {
+                alert('내용을 입력해주세요!');
+                return;
+            }
+
+            const user = getCurrentUser();
+            if (!user || !user.userId) {
+                alert('로그인이 필요합니다.');
+                location.href = 'index.html';
+                return;
+            }
+
+            const postData = {
+                user_id: user.userId,
+                nickname: user.nickname || '익명',
+                school_level: schoolLevel,
+                title: title,
+                content: content
+            };
+
+            try {
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('gongbu_token')}`
+                    },
+                    body: JSON.stringify(postData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('글이 작성되었습니다! 🎉');
+                    location.href = 'posts.html';
+                } else {
+                    alert('작성 실패: ' + (result.error || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                console.error('작성 오류:', error);
+                alert('서버 오류가 발생했습니다.');
+            }
+        }
+    </script>
+</body>
+</html>
