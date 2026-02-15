@@ -85,9 +85,9 @@ module.exports = async (req, res) => {
     }
     
     // GET /api/posts/123 (단일 글)
-    if (req.method === 'GET' && afterApi.match(/^\/\d+$/)) {
-        try {
-            const postId = afterApi.substring(1);
+    if (req.method === 'GET' && req.query.id) {
+    try {
+        const postId = req.query.id;
             
             const result = await query(`
                 SELECT * FROM posts WHERE id = $1
