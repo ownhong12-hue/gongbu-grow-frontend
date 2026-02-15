@@ -551,14 +551,23 @@
         async function loadStats() {
             try {
                 // 사용자 통계
-                const userStats = await api.getUserStats();
+               const token = localStorage.getItem('gongbu_token');
+const user = getCurrentUser();
+
+const response = await fetch(`/api/stats-user?user_id=${user.userId}`, {
+    headers: {
+        'Authorization': `Bearer ${token}`
+    }
+});
+const userStats = await response.json();
                 if (userStats.success) {
                     document.getElementById('totalHours').textContent = userStats.totalHours + 'h';
                     document.getElementById('weeklyHours').textContent = userStats.weeklyHours + 'h';
                 }
                 
                 // 실시간 통계
-                const activeStats = await api.getActiveStats();
+                const activeResponse = await fetch('/api/stats-active');
+const activeStats = await activeResponse.json();
                 if (activeStats.success) {
                     document.getElementById('activeNow').textContent = activeStats.activeNow + '명';
                     document.getElementById('todayActive').textContent = activeStats.todayActive + '명';
@@ -581,7 +590,8 @@
         // 30초마다 실시간 통계 갱신
         setInterval(async () => {
             try {
-                const activeStats = await api.getActiveStats();
+                const activeResponse = await fetch('/api/stats-active');
+const activeStats = await activeResponse.json();
                 if (activeStats.success) {
                     document.getElementById('activeNow').textContent = activeStats.activeNow + '명';
                     document.getElementById('todayActive').textContent = activeStats.todayActive + '명';
