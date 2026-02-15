@@ -252,7 +252,7 @@
             }
 
             const postData = {
-                user_id: user.userId,
+                user_id: parseInt(user.userId) || 1,
                 nickname: user.nickname || '익명',
                 school_level: schoolLevel,
                 title: title,
