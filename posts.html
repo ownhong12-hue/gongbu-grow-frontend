@@ -463,8 +463,8 @@ async function toggleLike(postId) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                post_id: postId,
-                user_id: user.userId
+    post_id: postId,
+    user_id: parseInt(user.userId) || 1,
             })
         });
 
@@ -504,7 +504,7 @@ async function addComment(postId) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 post_id: postId,
-                user_id: user.userId,
+                user_id: parseInt(user.userId) || 1,
                 nickname: user.nickname,
                 content: content
             })
