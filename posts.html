@@ -374,7 +374,7 @@
 
         async function openPost(postId) {
             try {
-                const response = await fetch(`/api/posts/${postId}`);
+                const response = await fetch(`/api/posts?id=${postId}`);
                 const data = await response.json();
                 
                 if (!data.success) {
