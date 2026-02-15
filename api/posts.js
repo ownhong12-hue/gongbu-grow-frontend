@@ -43,7 +43,35 @@ module.exports = async (req, res) => {
         }
     }
     
-    // GET /api/posts (목록)
+    // GET /api/posts?id=123 (단일 글) - 먼저 체크!
+    if (req.method === 'GET' && req.query.id) {
+        try {
+            const postId = req.query.id;
+            
+            const result = await query(`
+                SELECT * FROM posts WHERE id = $1
+            `, [postId]);
+            
+            if (result.rows.length === 0) {
+                return res.status(404).json({ error: '게시글을 찾을 수 없습니다.' });
+            }
+            
+            // 조회수 증가
+            await query(`
+                UPDATE posts SET view_count = view_count + 1 WHERE id = $1
+            `, [postId]);
+            
+            return res.json({
+                success: true,
+                post: result.rows[0]
+            });
+        } catch (error) {
+            console.error('글 조회 오류:', error);
+            return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+        }
+    }
+    
+    // GET /api/posts (목록) - 나중에 체크!
     if (req.method === 'GET' && afterApi === '') {
         try {
             const { school_level, sort = 'latest', limit = 20 } = req.query;
@@ -80,34 +108,6 @@ module.exports = async (req, res) => {
             });
         } catch (error) {
             console.error('목록 조회 오류:', error);
-            return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
-        }
-    }
-    
-    // GET /api/posts/123 (단일 글)
-    if (req.method === 'GET' && req.query.id) {
-    try {
-        const postId = req.query.id;
-            
-            const result = await query(`
-                SELECT * FROM posts WHERE id = $1
-            `, [postId]);
-            
-            if (result.rows.length === 0) {
-                return res.status(404).json({ error: '게시글을 찾을 수 없습니다.' });
-            }
-            
-            // 조회수 증가
-            await query(`
-                UPDATE posts SET view_count = view_count + 1 WHERE id = $1
-            `, [postId]);
-            
-            return res.json({
-                success: true,
-                post: result.rows[0]
-            });
-        } catch (error) {
-            console.error('글 조회 오류:', error);
             return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
     }
