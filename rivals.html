@@ -527,10 +527,11 @@
                 document.getElementById('globalLoading').style.display = 'none';
                 document.getElementById('globalContent').style.display = 'block';
                 
-                // 카테고리 표시
-                document.getElementById('categoryBadge').textContent = `${currentSchoolLevel} 랭킹`;
-                
-                displayGlobalRanking();
+               // 카테고리 표시
+const totalCount = globalData.totalCount || 0;
+document.getElementById('categoryBadge').textContent = `${currentSchoolLevel} 랭킹 (총 ${totalCount}명)`;
+
+displayGlobalRanking();
                 
             } catch (error) {
                 console.error('전국 랭킹 로드 실패:', error);
@@ -557,8 +558,20 @@
                     </div>
                 `;
             } else {
-                // 학교급 필터링
-                totalList.innerHTML = globalData.totalRanking.map((user, index) => {
+               } else {
+    // 내 순위 찾기
+    const myRank = globalData.totalRanking.findIndex(u => u.isCurrentUser) + 1;
+    const totalCount = globalData.totalCount || globalData.totalRanking.length;
+    
+    // 내 순위 표시
+    if (myRank > 0) {
+        document.getElementById('infoBanner').innerHTML = `📊 총 ${totalCount}명 중 ${myRank}등`;
+    } else {
+        document.getElementById('infoBanner').innerHTML = `💡 매주 월요일 0시에 주간 랭킹이 초기화됩니다`;
+    }
+    
+    // 학교급 필터링
+    totalList.innerHTML = globalData.totalRanking.map((user, index) => {
                     const rank = index + 1;
                     return `
                         <div class="ranking-card ${user.isCurrentUser ? 'current-user' : ''}">
