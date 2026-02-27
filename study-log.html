@@ -212,6 +212,7 @@
             timerInterval = setInterval(() => {
                 seconds = Math.floor((Date.now() - startTime) / 1000);
                 updateDisplay();
+                saveTimerState();
             }, 1000);
             
             document.getElementById('timerDisplay').classList.add('active');
