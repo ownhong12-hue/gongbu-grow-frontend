@@ -157,9 +157,10 @@
                         
                         // 타이머 자동 재개
                         timerInterval = setInterval(() => {
-                            seconds = Math.floor((Date.now() - startTime) / 1000);
-                            updateDisplay();
-                        }, 1000);
+    seconds = Math.floor((Date.now() - startTime) / 1000);
+    updateDisplay();
+    saveTimerState(); // 1초마다 저장
+}, 1000);
                         
                         document.getElementById('timerDisplay').classList.add('active');
                         document.getElementById('startBtn').style.display = 'none';
