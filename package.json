@@ -8,7 +8,7 @@
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
     "@anthropic-ai/sdk": "^0.24.0"
-}
+},
   "engines": {
     "node": ">=18.0.0"
   }
