@@ -584,6 +584,7 @@ displayGlobalRanking();
                         </div>
                     `;
                 }).join('');
+               } 
             }
             
             // 이번 주 랭킹
@@ -595,6 +596,7 @@ displayGlobalRanking();
                         <p>아직 이번 주 랭킹 데이터가 없어요</p>
                     </div>
                 `;
+                
             } else {
                 // 학교급 필터링
                 weeklyList.innerHTML = globalData.weeklyRanking.map((user, index) => {
