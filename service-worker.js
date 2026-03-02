@@ -5,8 +5,6 @@ const urlsToCache = [
   '/dashboard.html',
   '/rivals.html',
   '/study-log.html',
-  
-  '/learning-materials.html',
   '/api.js',
   '/schools_data.js',
   '/universities_data.js'
@@ -17,7 +15,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('캐시 열림');
+        console.log('캐시 열림'); 
         return cache.addAll(urlsToCache);
       })
   );
