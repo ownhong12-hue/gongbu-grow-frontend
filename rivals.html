@@ -589,7 +589,7 @@ displayGlobalRanking();
             
             // 이번 주 랭킹
             const weeklyList = document.getElementById('weeklyRankingList');
-            if (!globalData.weeklyRanking || globalData.weeklyRanking.length === 0) {
+            if (!globalData || !globalData.weeklyRanking || globalData.weeklyRanking.length === 0) {
                 weeklyList.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">😊</div>
