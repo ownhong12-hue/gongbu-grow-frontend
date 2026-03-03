@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>퀴즈 배틀 - 공부.성장</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --bg: #0f172a;
+            --bg-light: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
+        }
+        body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px; }
+        .header { background: var(--bg-light); border-bottom: 1px solid var(--border); padding: 20px; text-align: center; }
+        .header h1 { font-size: 1.5rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+        .tab-bar { display: flex; background: var(--bg-light); border-radius: 12px; padding: 4px; margin-bottom: 24px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; background: transparent; color: var(--text-muted); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .tab-btn.active { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; }
+        .card { background: var(--bg-light); border-radius: 16px; padding: 24px; margin-bottom: 16px; border: 1px solid var(--border); }
+        .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+        select { flex: 1; min-width: 120px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+        .btn-primary { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; margin-bottom: 8px; }
+        .btn-primary:hover { opacity: 0.85; }
+        .btn-secondary { width: 100%; padding: 14px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .question-num { color: var(--primary); font-weight: 700; font-size: 14px; }
+        .timer { background: var(--bg); border-radius: 20px; padding: 6px 16px; font-weight: 700; color: var(--text); font-size: 16px; }
+        .timer.urgent { color: #ff4757; animation: pulse 0.5s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .progress-bar { height: 4px; background: var(--bg); border-radius: 4px; margin-bottom: 20px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 4px; transition: width 0.3s; }
+        .question-text { font-size: 17px; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { padding: 14px 18px; text-align: left; background: var(--bg); color: var(--text); border: 2px solid transparent; border-radius: 12px; font-size: 15px; cursor: pointer; transition: all 0.15s; font-family: 'Noto Sans KR', sans-serif; }
+        .option-btn:hover:not(:disabled) { border-color: var(--primary); }
+        .option-btn.correct { border-color: #2ed573; background: rgba(46,213,115,0.1); color: #2ed573; }
+        .option-btn.wrong { border-color: #ff4757; background: rgba(255,71,87,0.1); color: #ff4757; }
+        .option-btn:disabled { cursor: default; }
+        .explanation { background: rgba(46,213,115,0.05); border-left: 3px solid #2ed573; border-radius: 8px; padding: 14px; margin-top: 16px; font-size: 14px; line-height: 1.6; color: var(--text-muted); display: none; }
+        .result-score { text-align: center; padding: 20px 0; }
+        .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .score-num { font-size: 36px; font-weight: 800; }
+        .score-label { font-size: 13px; opacity: 0.8; }
+        .room-code { font-size: 36px; font-weight: 800; letter-spacing: 6px; color: var(--primary); text-align: center; padding: 20px 0; }
+        .score-board { display: flex; justify-content: space-around; background: var(--bg); border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+        .player-score { text-align: center; }
+        .player-name { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+        .player-point { font-size: 28px; font-weight: 800; color: var(--primary); }
+        .vs-label { font-size: 20px; font-weight: 800; color: var(--border); align-self: center; }
+        .input-code { width: 100%; padding: 14px; text-align: center; background: var(--bg); color: var(--text); border: 2px solid var(--border); border-radius: 12px; font-size: 24px; font-weight: 700; letter-spacing: 4px; margin-bottom: 12px; font-family: 'Noto Sans KR', sans-serif; }
+        .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 16px auto; }
+        .hidden { display: none !important; }
+        h2 { font-size: 18px; margin-bottom: 16px; font-weight: 700; }
+        .big-emoji { font-size: 48px; margin-bottom: 12px; display: block; text-align: center; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-light); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: var(--text-muted); font-size: 0.75rem; transition: all 0.3s; }
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 1.5rem; }
+    </style>
+</head>
+<body>
+<div class="header"><h1>⚡ 퀴즈 배틀</h1></div>
+<div class="container">
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('solo')">📚 솔로 복습</button>
+        <button class="tab-btn" onclick="switchTab('battle')">⚔️ 1대1 배틀</button>
+    </div>
+
+    <!-- 솔로 탭 -->
+    <div id="soloTab">
+        <div id="soloSetup" class="card">
+            <h2>📚 솔로 복습 모드</h2>
+            <p style="color:var(--text-muted);margin-bottom:20px;font-size:14px;">5문제를 풀고 실력을 확인해보세요!</p>
+            <div class="form-row">
+                <select id="soloSchoolLevel"><option value="">학교급</option><option value="초등">초등</option><option value="중학">중학</option><option value="고등">고등</option></select>
+                <select id="soloGrade"><option value="">학년</option><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option></select>
+            </div>
+            <div class="form-row">
+                <select id="soloSemester"><option value="">학기</option><option value="1학기">1학기</option><option value="2학기">2학기</option></select>
+                <select id="soloSubject"><option value="">과목</option><option value="국어">국어</option><option value="영어">영어</option><option value="수학">수학</option><option value="과학">과학</option><option value="사회">사회</option></select>
+            </div>
+            <button class="btn-primary" onclick="startSolo()">시작하기 🚀</button>
+        </div>
+        <div id="soloQuiz" class="hidden">
+            <div class="card">
+                <div class="question-header">
+                    <span class="question-num" id="soloQNum">1 / 5</span>
+                    <span class="timer" id="soloTimer">30</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="soloProgress" style="width:20%"></div></div>
+                <div class="question-text" id="soloQuestion"></div>
+                <div class="options" id="soloOptions"></div>
+                <div class="explanation" id="soloExplanation"></div>
+            </div>
+            <button class="btn-primary hidden" id="soloNextBtn" onclick="nextSoloQuestion()">다음 문제 →</button>
+        </div>
+        <div id="soloResult" class="hidden card">
+            <div class="result-score">
+                <div class="score-circle">
+                    <span class="score-num" id="resultScore">0</span>
+                    <span class="score-label">/ 5</span>
+                </div>
+                <h2 id="resultMsg">수고했어요!</h2>
+                <p style="color:var(--text-muted);font-size:14px;margin-bottom:24px;" id="resultSub"></p>
+            </div>
+            <button class="btn-primary" onclick="resetSolo()">다시 풀기 🔄</button>
+        </div>
+    </div>
+
+    <!-- 배틀 탭 -->
+    <div id="battleTab" class="hidden">
+        <div id="battleMain">
+            <div class="card">
+                <h2>⚔️ 1대1 배틀</h2>
+                <p style="color:var(--text-muted);margin-bottom:20px;font-size:14px;">친구와 실시간으로 대결하세요!</p>
+                <div class="form-row">
+                    <select id="battleSchoolLevel"><option value="">학교급</option><option value="초등">초등</option><option value="중학">중학</option><option value="고등">고등</option></select>
+                    <select id="battleGrade"><option value="">학년</option><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option></select>
+                </div>
+                <div class="form-row">
+                    <select id="battleSemester"><option value="">학기</option><option value="1학기">1학기</option><option value="2학기">2학기</option></select>
+                    <select id="battleSubject"><option value="">과목</option><option value="국어">국어</option><option value="영어">영어</option><option value="수학">수학</option><option value="과학">과학</option><option value="사회">사회</option></select>
+                </div>
+                <button class="btn-primary" onclick="createRoom()">방 만들기 🏠</button>
+                <button class="btn-secondary" onclick="showJoinRoom()">방 참가하기 🚪</button>
+            </div>
+            <div id="joinRoomCard" class="card hidden">
+                <h2>방 코드 입력</h2>
+                <input class="input-code" id="joinCodeInput" maxlength="6" placeholder="XXXXXX" oninput="this.value=this.value.toUpperCase()">
+                <button class="btn-primary" onclick="joinRoom()">입장하기</button>
+            </div>
+        </div>
+        <div id="battleWaiting" class="hidden card" style="text-align:center;">
+            <span class="big-emoji">🏠</span>
+            <h2>친구에게 코드를 알려주세요!</h2>
+            <div class="room-code" id="displayRoomCode">------</div>
+            <p style="color:var(--text-muted);font-size:14px;">친구를 기다리는 중...</p>
+            <div class="spinner"></div>
+            <button class="btn-secondary" onclick="cancelRoom()" style="margin-top:8px;">취소</button>
+        </div>
+        <div id="battleQuiz" class="hidden">
+            <div class="score-board">
+                <div class="player-score"><div class="player-name">나</div><div class="player-point" id="myScore">0</div></div>
+                <div class="vs-label">VS</div>
+                <div class="player-score"><div class="player-name">상대</div><div class="player-point" id="opponentScore">0</div></div>
+            </div>
+            <div class="card">
+                <div class="question-header">
+                    <span class="question-num" id="battleQNum">1 / 5</span>
+                    <span class="timer" id="battleTimer">15</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="battleProgress" style="width:20%"></div></div>
+                <div class="question-text" id="battleQuestion"></div>
+                <div class="options" id="battleOptions"></div>
+                <div class="explanation" id="battleExplanation"></div>
+            </div>
+        </div>
+        <div id="battleResult" class="hidden card">
+            <div class="result-score">
+                <span class="big-emoji" id="battleResultEmoji">🏆</span>
+                <h2 id="battleResultMsg">결과</h2>
+                <div class="score-board" style="margin:20px 0;">
+                    <div class="player-score"><div class="player-name">나</div><div class="player-point" id="finalMyScore">0</div></div>
+                    <div class="vs-label">VS</div>
+                    <div class="player-score"><div class="player-name">상대</div><div class="player-point" id="finalOpponentScore">0</div></div>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="resetBattle()">다시 하기 🔄</button>
+        </div>
+    </div>
+</div>
+
+<nav class="nav-bar">
+    <a href="dashboard.html" class="nav-item"><div class="nav-icon">📊</div><div>대시보드</div></a>
+    <a href="study-log.html" class="nav-item"><div class="nav-icon">✏️</div><div>학습기록</div></a>
+    <a href="rivals.html" class="nav-item"><div class="nav-icon">🏆</div><div>라이벌</div></a>
+    <a href="quiz-battle.html" class="nav-item active"><div class="nav-icon">⚡</div><div>퀴즈</div></a>
+</nav>
+
+<script src="api.js"></script>
+<script>
+    const token = localStorage.getItem('token');
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach((b, i) => {
+            b.classList.toggle('active', (tab === 'solo' && i === 0) || (tab === 'battle' && i === 1));
+        });
+        document.getElementById('soloTab').classList.toggle('hidden', tab !== 'solo');
+        document.getElementById('battleTab').classList.toggle('hidden', tab !== 'battle');
+    }
+
+    // ===== 솔로 모드 =====
+    let soloQuestions = [], soloIndex = 0, soloCorrect = 0;
+    let soloTimer, soloTimeLeft = 30, soloAnswered = false;
+
+    async function startSolo() {
+        const school_level = document.getElementById('soloSchoolLevel').value;
+        const grade = document.getElementById('soloGrade').value;
+        const semester = document.getElementById('soloSemester').value;
+        const subject = document.getElementById('soloSubject').value;
+        if (!school_level || !grade || !semester || !subject) { alert('모든 항목을 선택해주세요!'); return; }
+        try {
+            const res = await fetch(`/api/quiz-battle-questions?school_level=${school_level}&grade=${grade}&semester=${encodeURIComponent(semester)}&subject=${encodeURIComponent(subject)}&count=5`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (!data.questions || data.questions.length === 0) { alert('문제가 없습니다. 관리자에게 문의하세요.'); return; }
+            soloQuestions = data.questions;
+            soloIndex = 0; soloCorrect = 0;
+            document.getElementById('soloSetup').classList.add('hidden');
+            document.getElementById('soloResult').classList.add('hidden');
+            document.getElementById('soloQuiz').classList.remove('hidden');
+            showSoloQuestion();
+        } catch (e) { alert('문제를 불러오지 못했습니다.'); }
+    }
+
+    function showSoloQuestion() {
+        soloAnswered = false;
+        const q = soloQuestions[soloIndex];
+        const total = soloQuestions.length;
+        document.getElementById('soloQNum').textContent = `${soloIndex + 1} / ${total}`;
+        document.getElementById('soloProgress').style.width = `${((soloIndex + 1) / total) * 100}%`;
+        document.getElementById('soloQuestion').textContent = q.question;
+        document.getElementById('soloExplanation').style.display = 'none';
+        document.getElementById('soloNextBtn').classList.add('hidden');
+        const options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
+        document.getElementById('soloOptions').innerHTML = options.map((o, i) =>
+            `<button class="option-btn" onclick="selectSoloAnswer(${i})">${o}</button>`
+        ).join('');
+        startSoloTimer();
+    }
+
+    function startSoloTimer() {
+        clearInterval(soloTimer);
+        soloTimeLeft = 30;
+        const timerEl = document.getElementById('soloTimer');
+        timerEl.textContent = soloTimeLeft;
+        timerEl.classList.remove('urgent');
+        soloTimer = setInterval(() => {
+            soloTimeLeft--;
+            timerEl.textContent = soloTimeLeft;
+            if (soloTimeLeft <= 10) timerEl.classList.add('urgent');
+            if (soloTimeLeft <= 0) { clearInterval(soloTimer); if (!soloAnswered) autoTimeoutSolo(); }
+        }, 1000);
+    }
+
+    function autoTimeoutSolo() {
+        soloAnswered = true;
+        const q = soloQuestions[soloIndex];
+        document.querySelectorAll('#soloOptions .option-btn').forEach((btn, i) => {
+            btn.disabled = true;
+            if (i === q.answer) btn.classList.add('correct');
+        });
+        const expEl = document.getElementById('soloExplanation');
+        expEl.textContent = '⏰ 시간 초과! ' + (q.explanation || '');
+        expEl.style.display = 'block';
+        document.getElementById('soloNextBtn').classList.remove('hidden');
+    }
+
+    function selectSoloAnswer(selected) {
+        if (soloAnswered) return;
+        soloAnswered = true;
+        clearInterval(soloTimer);
+        const q = soloQuestions[soloIndex];
+        const isCorrect = selected === q.answer;
+        if (isCorrect) soloCorrect++;
+        document.querySelectorAll('#soloOptions .option-btn').forEach((btn, i) => {
+            btn.disabled = true;
+            if (i === q.answer) btn.classList.add('correct');
+            else if (i === selected && !isCorrect) btn.classList.add('wrong');
+        });
+        const expEl = document.getElementById('soloExplanation');
+        expEl.textContent = (isCorrect ? '✅ 정답! ' : '❌ 오답! ') + (q.explanation || '');
+        expEl.style.display = 'block';
+        document.getElementById('soloNextBtn').classList.remove('hidden');
+    }
+
+    function nextSoloQuestion() {
+        soloIndex++;
+        if (soloIndex >= soloQuestions.length) showSoloResult();
+        else showSoloQuestion();
+    }
+
+    async function showSoloResult() {
+        clearInterval(soloTimer);
+        document.getElementById('soloQuiz').classList.add('hidden');
+        document.getElementById('soloNextBtn').classList.add('hidden');
+        document.getElementById('soloResult').classList.remove('hidden');
+        document.getElementById('resultScore').textContent = soloCorrect;
+        const msgs = ['다시 도전해봐요! 💪', '다시 도전해봐요! 💪', '잘했어요! 👍', '훌륭해요! 🌟', '훌륭해요! 🌟', '완벽해요! 🏆'];
+        const subs = ['복습이 필요해요!', '조금 더 노력해봐요!', '조금만 더 공부해봐요!', '거의 다 맞췄어요!', '거의 완벽해요!', '5문제 모두 맞췄어요!'];
+        document.getElementById('resultMsg').textContent = msgs[soloCorrect];
+        document.getElementById('resultSub').textContent = subs[soloCorrect];
+        try {
+            await fetch('/api/solo-results', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    school_level: document.getElementById('soloSchoolLevel').value,
+                    grade: document.getElementById('soloGrade').value,
+                    semester: document.getElementById('soloSemester').value,
+                    subject: document.getElementById('soloSubject').value,
+                    total_questions: 5, correct_count: soloCorrect
+                })
+            });
+        } catch (e) { console.error('결과 저장 실패', e); }
+    }
+
+    function resetSolo() {
+        document.getElementById('soloResult').classList.add('hidden');
+        document.getElementById('soloSetup').classList.remove('hidden');
+        soloQuestions = []; soloIndex = 0; soloCorrect = 0;
+    }
+
+    // ===== 배틀 모드 =====
+    let battleRoomId = null, battleRoomCode = null, battleRole = null;
+    let battleQuestions = [], battleIndex = 0, myBattleScore = 0, opponentBattleScore = 0;
+    let battleTimer, battleTimeLeft = 15, battleAnswered = false;
+    let pollInterval = null, scoreInterval = null;
+
+    function showJoinRoom() {
+        document.getElementById('joinRoomCard').classList.toggle('hidden');
+    }
+
+    async function createRoom() {
+        const school_level = document.getElementById('battleSchoolLevel').value;
+        const grade = document.getElementById('battleGrade').value;
+        const semester = document.getElementById('battleSemester').value;
+        const subject = document.getElementById('battleSubject').value;
+        if (!school_level || !grade || !semester || !subject) { alert('모든 항목을 선택해주세요!'); return; }
+        try {
+            const res = await fetch('/api/battle-rooms', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ school_level, grade, semester, subject })
+            });
+            const data = await res.json();
+            if (data.error) { alert(data.error); return; }
+            battleRoomId = data.room_id;
+            battleRoomCode = data.room_code;
+            battleRole = 'host';
+            document.getElementById('battleMain').classList.add('hidden');
+            document.getElementById('battleWaiting').classList.remove('hidden');
+            document.getElementById('displayRoomCode').textContent = battleRoomCode;
+            pollInterval = setInterval(checkRoomStatus, 2000);
+        } catch (e) { alert('방을 만들지 못했습니다.'); }
+    }
+
+    async function joinRoom() {
+        const code = document.getElementById('joinCodeInput').value.trim();
+        if (code.length !== 6) { alert('6자리 코드를 입력하세요!'); return; }
+        try {
+            const res = await fetch('/api/battle-rooms/join', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ room_code: code })
+            });
+            const data = await res.json();
+            if (data.error) { alert(data.error); return; }
+            battleRoomId = data.room_id;
+            battleRole = 'guest';
+            battleQuestions = data.questions;
+            startBattleQuiz();
+        } catch (e) { alert('입장에 실패했습니다.'); }
+    }
+
+    async function checkRoomStatus() {
+        try {
+            const res = await fetch(`/api/battle-rooms/${battleRoomId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.status === 'playing') {
+                clearInterval(pollInterval);
+                battleQuestions = data.questions;
+                startBattleQuiz();
+            }
+        } catch (e) {}
+    }
+
+    function startBattleQuiz() {
+        battleIndex = 0; myBattleScore = 0; opponentBattleScore = 0;
+        document.getElementById('battleWaiting').classList.add('hidden');
+        document.getElementById('battleMain').classList.add('hidden');
+        document.getElementById('battleQuiz').classList.remove('hidden');
+        showBattleQuestion();
+        scoreInterval = setInterval(pollScores, 3000);
+    }
+
+    function showBattleQuestion() {
+        battleAnswered = false;
+        const q = battleQuestions[battleIndex];
+        const total = battleQuestions.length;
+        document.getElementById('battleQNum').textContent = `${battleIndex + 1} / ${total}`;
+        document.getElementById('battleProgress').style.width = `${((battleIndex + 1) / total) * 100}%`;
+        document.getElementById('battleQuestion').textContent = q.question;
+        document.getElementById('battleExplanation').style.display = 'none';
+        document.getElementById('myScore').textContent = myBattleScore;
+        document.getElementById('opponentScore').textContent = opponentBattleScore;
+        const options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
+        document.getElementById('battleOptions').innerHTML = options.map((o, i) =>
+            `<button class="option-btn" onclick="selectBattleAnswer(${i})">${o}</button>`
+        ).join('');
+        startBattleTimer();
+    }
+
+    function startBattleTimer() {
+        clearInterval(battleTimer);
+        battleTimeLeft = 15;
+        const timerEl = document.getElementById('battleTimer');
+        timerEl.textContent = battleTimeLeft;
+        timerEl.classList.remove('urgent');
+        battleTimer = setInterval(() => {
+            battleTimeLeft--;
+            timerEl.textContent = battleTimeLeft;
+            if (battleTimeLeft <= 5) timerEl.classList.add('urgent');
+            if (battleTimeLeft <= 0) { clearInterval(battleTimer); if (!battleAnswered) selectBattleAnswer(null); }
+        }, 1000);
+    }
+
+    async function selectBattleAnswer(selected) {
+        if (battleAnswered) return;
+        battleAnswered = true;
+        clearInterval(battleTimer);
+        const q = battleQuestions[battleIndex];
+        const isCorrect = selected === q.answer;
+        if (isCorrect) myBattleScore++;
+        document.querySelectorAll('#battleOptions .option-btn').forEach((btn, i) => {
+            btn.disabled = true;
+            if (i === q.answer) btn.classList.add('correct');
+            else if (i === selected && !isCorrect) btn.classList.add('wrong');
+        });
+        const expEl = document.getElementById('battleExplanation');
+        expEl.textContent = (isCorrect ? '✅ 정답! ' : '❌ 오답! ') + (q.explanation || '');
+        expEl.style.display = 'block';
+        document.getElementById('myScore').textContent = myBattleScore;
+        try {
+            await fetch(`/api/battle-rooms/${battleRoomId}/answer`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ question_id: q.id, selected_answer: selected, question_index: battleIndex })
+            });
+        } catch (e) {}
+        setTimeout(() => {
+            battleIndex++;
+            if (battleIndex >= battleQuestions.length) showBattleResult();
+            else showBattleQuestion();
+        }, 2000);
+    }
+
+    async function pollScores() {
+        if (battleIndex >= battleQuestions.length) { clearInterval(scoreInterval); return; }
+        try {
+            const res = await fetch(`/api/battle-rooms/${battleRoomId}/scores`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            opponentBattleScore = battleRole === 'host' ? (data.guest_score || 0) : (data.host_score || 0);
+            document.getElementById('opponentScore').textContent = opponentBattleScore;
+        } catch (e) {}
+    }
+
+    function showBattleResult() {
+        clearInterval(battleTimer);
+        clearInterval(scoreInterval);
+        document.getElementById('battleQuiz').classList.add('hidden');
+        document.getElementById('battleResult').classList.remove('hidden');
+        document.getElementById('finalMyScore').textContent = myBattleScore;
+        document.getElementById('finalOpponentScore').textContent = opponentBattleScore;
+        const emoji = myBattleScore > opponentBattleScore ? '🏆' : myBattleScore < opponentBattleScore ? '😢' : '🤝';
+        const msg = myBattleScore > opponentBattleScore ? '승리!' : myBattleScore < opponentBattleScore ? '아쉽게 패배...' : '무승부!';
+        document.getElementById('battleResultEmoji').textContent = emoji;
+        document.getElementById('battleResultMsg').textContent = msg;
+    }
+
+    function cancelRoom() {
+        clearInterval(pollInterval);
+        battleRoomId = null;
+        document.getElementById('battleWaiting').classList.add('hidden');
+        document.getElementById('battleMain').classList.remove('hidden');
+    }
+
+    function resetBattle() {
+        document.getElementById('battleResult').classList.add('hidden');
+        document.getElementById('battleMain').classList.remove('hidden');
+        battleRoomId = null; battleRoomCode = null; battleRole = null;
+        battleQuestions = []; battleIndex = 0; myBattleScore = 0; opponentBattleScore = 0;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (!isAuthenticated()) { window.location.href = 'index.html'; return; }
+    });
+</script>
+<!-- PWA -->
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js');
+    });
+}
+</script>
+</body>
+</html>
