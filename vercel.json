@@ -12,6 +12,8 @@
     { "source": "/api/admin/:path*", "destination": "/api/admin" },
     { "source": "/api/rivals/global", "destination": "/api/rivals/global" },
     { "source": "/api/rivals/school", "destination": "/api/rivals/school" },
+    { "source": "/api/matchmaking/status", "destination": "/api/matchmaking" },
+    { "source": "/api/matchmaking", "destination": "/api/matchmaking" },
     { "source": "/api/battle-rooms/join", "destination": "/api/battle-rooms" },
     { "source": "/api/battle-rooms/:id/answer", "destination": "/api/battle-rooms" },
     { "source": "/api/battle-rooms/:id/scores", "destination": "/api/battle-rooms" },
