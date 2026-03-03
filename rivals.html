@@ -590,7 +590,7 @@ displayGlobalRanking();
             
             // 이번 주 랭킹
             const weeklyList = document.getElementById('weeklyRankingList');
-            if (!globalData || !globalData.weeklyRanking || globalData.weeklyRanking.length === 0) {
+            if (!globalData || !globalData.weeklyRanking || globalData.weeklyRanking.filter(u => u.weeklyMinutes > 0).length === 0) {
                 weeklyList.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">😊</div>
@@ -600,7 +600,7 @@ displayGlobalRanking();
                 
             } else {
                 // 학교급 필터링
-                weeklyList.innerHTML = globalData.weeklyRanking.map((user, index) => {
+                weeklyList.innerHTML = globalData.weeklyRanking.filter(u => u.weeklyMinutes > 0).map((user, index) => {
                     const rank = index + 1;
                     return `
                         <div class="ranking-card ${user.isCurrentUser ? 'current-user' : ''}">
