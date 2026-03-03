@@ -135,8 +135,9 @@
                     <select id="battleSemester"><option value="">학기</option><option value="1학기">1학기</option><option value="2학기">2학기</option></select>
                     <select id="battleSubject"><option value="">과목</option><option value="국어">국어</option><option value="영어">영어</option><option value="수학">수학</option><option value="과학">과학</option><option value="사회">사회</option></select>
                 </div>
-                <button class="btn-primary" onclick="createRoom()">방 만들기 🏠</button>
-                <button class="btn-secondary" onclick="showJoinRoom()">방 참가하기 🚪</button>
+                <button class="btn-primary" onclick="startMatchmaking()">🎲 랜덤 매칭</button>
+<button class="btn-primary" onclick="createRoom()">방 만들기 🏠</button>
+<button class="btn-secondary" onclick="showJoinRoom()">방 참가하기 🚪</button>
             </div>
             <div id="joinRoomCard" class="card hidden">
                 <h2>방 코드 입력</h2>
@@ -152,6 +153,14 @@
             <div class="spinner"></div>
             <button class="btn-secondary" onclick="cancelRoom()" style="margin-top:8px;">취소</button>
         </div>
+        <div id="matchmakingWaiting" class="hidden card" style="text-align:center;">
+    <span class="big-emoji">🎲</span>
+    <h2>상대를 찾고 있어요!</h2>
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px;">같은 조건의 상대를 찾는 중...</p>
+    <div class="spinner"></div>
+    <button class="btn-secondary" onclick="cancelMatchmaking()" style="margin-top:8px;">취소</button>
+</div>
+        
         <div id="battleQuiz" class="hidden">
             <div class="score-board">
                 <div class="player-score"><div class="player-name">나</div><div class="player-point" id="myScore">0</div></div>
@@ -392,9 +401,10 @@
         } catch (e) {}
     }
 
-    function startBattleQuiz() {
+   function startBattleQuiz() {
         battleIndex = 0; myBattleScore = 0; opponentBattleScore = 0;
         document.getElementById('battleWaiting').classList.add('hidden');
+        document.getElementById('matchmakingWaiting').classList.add('hidden');
         document.getElementById('battleMain').classList.add('hidden');
         document.getElementById('battleQuiz').classList.remove('hidden');
         showBattleQuestion();
@@ -504,6 +514,70 @@
     window.addEventListener('DOMContentLoaded', () => {
         if (!isAuthenticated()) { window.location.href = 'index.html'; return; }
     });
+    let matchmakingQueueId = null;
+let matchmakingPollInterval = null;
+
+async function startMatchmaking() {
+    const school_level = document.getElementById('battleSchoolLevel').value;
+    const grade = document.getElementById('battleGrade').value;
+    const semester = document.getElementById('battleSemester').value;
+    const subject = document.getElementById('battleSubject').value;
+    if (!school_level || !grade || !semester || !subject) { alert('모든 항목을 선택해주세요!'); return; }
+
+    try {
+        const res = await fetch('/api/matchmaking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ school_level, grade, semester, subject })
+        });
+        const data = await res.json();
+        if (data.error) { alert(data.error); return; }
+
+        if (data.matched) {
+            // 바로 매칭됨
+            battleRoomId = data.room_id;
+            battleRole = data.role;
+            battleQuestions = data.questions;
+            startBattleQuiz();
+        } else {
+            // 대기열 등록
+            matchmakingQueueId = data.queue_id;
+            document.getElementById('battleMain').classList.add('hidden');
+            document.getElementById('matchmakingWaiting').classList.remove('hidden');
+            matchmakingPollInterval = setInterval(checkMatchmakingStatus, 2000);
+        }
+    } catch (e) { alert('매칭 요청에 실패했습니다.'); }
+}
+
+async function checkMatchmakingStatus() {
+    try {
+        const res = await fetch(`/api/matchmaking/status?queue_id=${matchmakingQueueId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.matched) {
+            clearInterval(matchmakingPollInterval);
+            battleRoomId = data.room_id;
+            battleRole = data.role;
+            battleQuestions = data.questions;
+            document.getElementById('matchmakingWaiting').classList.add('hidden');
+            startBattleQuiz();
+        }
+    } catch (e) {}
+}
+
+async function cancelMatchmaking() {
+    clearInterval(matchmakingPollInterval);
+    try {
+        await fetch('/api/matchmaking', {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+    } catch (e) {}
+    matchmakingQueueId = null;
+    document.getElementById('matchmakingWaiting').classList.add('hidden');
+    document.getElementById('battleMain').classList.remove('hidden');
+}
 </script>
 <!-- PWA -->
 <script>
@@ -512,6 +586,7 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/service-worker.js');
     });
 }
+
 </script>
 </body>
 </html>
