@@ -484,7 +484,7 @@
         } catch (e) {}
     }
 
-    function showBattleResult() {
+    async function showBattleResult() {
         clearInterval(battleTimer);
         clearInterval(scoreInterval);
         document.getElementById('battleQuiz').classList.add('hidden');
@@ -495,6 +495,18 @@
         const msg = myBattleScore > opponentBattleScore ? '승리!' : myBattleScore < opponentBattleScore ? '아쉽게 패배...' : '무승부!';
         document.getElementById('battleResultEmoji').textContent = emoji;
         document.getElementById('battleResultMsg').textContent = msg;
+
+        // 점수 업데이트
+        const result = myBattleScore > opponentBattleScore ? 'win' : myBattleScore < opponentBattleScore ? 'loss' : 'draw';
+        try {
+            const res = await fetch('/api/battle-ratings/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ result })
+            });
+            const data = await res.json();
+            document.getElementById('battleResultMsg').textContent = `${msg} (+${data.points >= 0 ? data.points : data.points}점 / ${data.emoji} ${data.tier} ${data.points}점)`;
+        } catch (e) {}
     }
 
     function cancelRoom() {
@@ -511,8 +523,15 @@
         battleQuestions = []; battleIndex = 0; myBattleScore = 0; opponentBattleScore = 0;
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
+   window.addEventListener('DOMContentLoaded', () => {
         if (!isAuthenticated()) { window.location.href = 'index.html'; return; }
+        
+        // 내 배틀 티어 로드
+        fetch('/api/battle-ratings/me', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        }).then(r => r.json()).then(data => {
+            document.querySelector('.header h1').textContent = `⚡ 퀴즈 배틀 ${data.emoji} ${data.tier} ${data.points}점`;
+        }).catch(() => {});
     });
     let matchmakingQueueId = null;
 let matchmakingPollInterval = null;
