@@ -51,12 +51,12 @@ async function handler(req, res) {
 
                 // 방 생성
                 const room = await query(
-                    `INSERT INTO battle_rooms 
-                        (host_id, guest_id, school_level, grade, semester, subject, status)
-                     VALUES ($1, $2, $3, $4, $5, $6, 'playing')
-                     RETURNING id`,
-                    [opponentData.user_id, req.user.userId, school_level, grade, semester, subject]
-                );
+    `INSERT INTO battle_rooms 
+        (room_code, host_id, guest_id, school_level, grade, semester, subject, status)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, 'playing')
+     RETURNING id`,
+    ['MM' + Math.random().toString(36).substring(2, 6).toUpperCase(), opponentData.user_id, req.user.userId, school_level, grade, semester, subject]
+);
 
                 const roomId = room.rows[0].id;
 
