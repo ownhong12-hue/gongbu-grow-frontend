@@ -365,293 +365,247 @@
     </nav>
     
     <script src="api.js"></script>
-    <script>
-        let currentSchoolLevel = '고등학교';  // 기본값
-        let currentScope = 'school';
-        let currentRankingType = 'total';
-        
-        // 학교급 탭 전환
-        document.querySelectorAll('.school-level-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.school-level-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                currentSchoolLevel = tab.dataset.level;
-                loadCurrentData();
-            });
-        });
-        
-        // 우리학교/전국 탭 전환
-        document.querySelectorAll('.scope-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.scope-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                currentScope = tab.dataset.scope;
-                
-                document.getElementById('schoolRanking').style.display = currentScope === 'school' ? 'block' : 'none';
-                document.getElementById('globalRanking').style.display = currentScope === 'global' ? 'block' : 'none';
-                
-                loadCurrentData();
-            });
-        });
-        
-        // 랭킹 타입 전환 (전체/주간) - 우리 학교용
-        document.querySelector('#schoolRanking .ranking-type-tabs').addEventListener('click', (e) => {
-            const tab = e.target.closest('.ranking-type-tab');
-            if (!tab) return;
-            
-            document.querySelectorAll('#schoolRanking .ranking-type-tab').forEach(t => t.classList.remove('active'));
+<script>
+    let currentSchoolLevel = '고등학교';
+    let currentScope = 'school';
+    let currentRankingType = 'total';
+    let schoolData = null;
+    let globalData = null;
+
+    // 학교급 탭
+    document.querySelectorAll('.school-level-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.school-level-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            
-            currentRankingType = tab.dataset.type;
+            currentSchoolLevel = tab.dataset.level;
+            loadCurrentData();
+        });
+    });
+
+    // 우리학교/전국 탭
+    document.querySelectorAll('.scope-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.scope-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentScope = tab.dataset.scope;
+            document.getElementById('schoolRanking').style.display = currentScope === 'school' ? 'block' : 'none';
+            document.getElementById('globalRanking').style.display = currentScope === 'global' ? 'block' : 'none';
+            loadCurrentData();
+        });
+    });
+
+    // 랭킹 타입 탭 - 우리학교
+    document.querySelector('#schoolRanking .ranking-type-tabs').addEventListener('click', (e) => {
+        const tab = e.target.closest('.ranking-type-tab');
+        if (!tab) return;
+        document.querySelectorAll('#schoolRanking .ranking-type-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentRankingType = tab.dataset.type;
+        displaySchoolRanking();
+    });
+
+    // 랭킹 타입 탭 - 전국
+    document.querySelector('#globalRanking .ranking-type-tabs').addEventListener('click', (e) => {
+        const tab = e.target.closest('.ranking-type-tab');
+        if (!tab) return;
+        document.querySelectorAll('#globalRanking .ranking-type-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentRankingType = tab.dataset.type;
+        document.getElementById('totalRankingList').style.display = currentRankingType === 'total' ? 'block' : 'none';
+        document.getElementById('weeklyRankingList').style.display = currentRankingType === 'weekly' ? 'block' : 'none';
+        displayGlobalRanking();
+    });
+
+    async function loadCurrentData() {
+        if (currentScope === 'school') {
+            await loadSchoolRanking();
+        } else {
+            await loadGlobalRanking();
+        }
+    }
+
+    async function loadSchoolRanking() {
+        try {
+            document.getElementById('schoolLoading').style.display = 'block';
+            document.getElementById('schoolContent').style.display = 'none';
+            const data = await api.getSchoolRivals();
+            schoolData = data;
+            document.getElementById('schoolLoading').style.display = 'none';
+            document.getElementById('schoolContent').style.display = 'block';
             displaySchoolRanking();
-        });
-        
-        // 랭킹 타입 전환 (전체/주간) - 전국 랭킹용
-        document.querySelector('#globalRanking .ranking-type-tabs').addEventListener('click', (e) => {
-            const tab = e.target.closest('.ranking-type-tab');
-            if (!tab) return;
-            
-            document.querySelectorAll('#globalRanking .ranking-type-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            
-            currentRankingType = tab.dataset.type;
-            
-            document.getElementById('totalRankingList').style.display = currentRankingType === 'total' ? 'block' : 'none';
-            document.getElementById('weeklyRankingList').style.display = currentRankingType === 'weekly' ? 'block' : 'none';
+        } catch (error) {
+            console.error('학교 랭킹 로드 실패:', error);
+            document.getElementById('schoolLoading').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⚠️</div>
+                    <p>랭킹을 불러올 수 없습니다</p>
+                </div>
+            `;
+        }
+    }
+
+    function displaySchoolRanking() {
+        if (!schoolData || !schoolData.rivals || schoolData.rivals.length === 0) {
+            document.getElementById('schoolRankingList').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">😊</div>
+                    <p>아직 같은 학교에 다른 사용자가 없어요</p>
+                </div>
+            `;
+            return;
+        }
+
+        const filtered = schoolData.rivals.filter(user =>
+            user.schoolLevel && user.schoolLevel.includes(currentSchoolLevel)
+        );
+
+        if (filtered.length === 0) {
+            document.getElementById('schoolRankingList').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">😊</div>
+                    <p>아직 ${currentSchoolLevel}에 다른 사용자가 없어요</p>
+                </div>
+            `;
+            return;
+        }
+
+        const sorted = currentRankingType === 'total'
+            ? [...filtered].sort((a, b) => b.totalMinutes - a.totalMinutes)
+            : [...filtered].sort((a, b) => b.weeklyMinutes - a.weeklyMinutes);
+
+        document.getElementById('schoolRankingList').innerHTML = sorted.map((user, index) => {
+            const minutes = currentRankingType === 'total' ? user.totalMinutes : user.weeklyMinutes;
+            const hours = Math.floor(minutes / 60);
+            const rank = index + 1;
+            return `
+                <div class="ranking-card ${user.isCurrentUser ? 'current-user' : ''}">
+                    <div class="rank ${rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : ''}">${rank}</div>
+                    <div class="user-info">
+                        <div class="nickname">${user.nickname} ${user.isCurrentUser ? '(나)' : ''}</div>
+                        <div class="school-info">${user.schoolLevel}</div>
+                    </div>
+                    <div class="stats">
+                        <div class="hours">${hours}시간</div>
+                        <div class="label">${currentRankingType === 'total' ? '전체' : '이번 주'}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function loadGlobalRanking() {
+        try {
+            document.getElementById('globalLoading').style.display = 'block';
+            document.getElementById('globalContent').style.display = 'none';
+            const data = await api.getGlobalRank(currentSchoolLevel);
+            globalData = data;
+            document.getElementById('globalLoading').style.display = 'none';
+            document.getElementById('globalContent').style.display = 'block';
+            const totalCount = globalData.totalCount || 0;
+            document.getElementById('categoryBadge').textContent = `${currentSchoolLevel} 랭킹 (총 ${totalCount}명)`;
             displayGlobalRanking();
-        });
-        
-        let schoolData = null;
-        let globalData = null;
-        
-        // 현재 데이터 로드
-        async function loadCurrentData() {
-            if (currentScope === 'school') {
-                await loadSchoolRanking();
+        } catch (error) {
+            console.error('전국 랭킹 로드 실패:', error);
+            document.getElementById('globalLoading').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⚠️</div>
+                    <p>랭킹을 불러올 수 없습니다</p>
+                </div>
+            `;
+        }
+    }
+
+    function displayGlobalRanking() {
+        if (!globalData) return;
+
+        // 전체 누적
+        const totalList = document.getElementById('totalRankingList');
+        if (!globalData.totalRanking || globalData.totalRanking.length === 0) {
+            totalList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">😊</div>
+                    <p>아직 랭킹 데이터가 없어요</p>
+                </div>
+            `;
+        } else {
+            const myRank = globalData.totalRanking.findIndex(u => u.isCurrentUser) + 1;
+            const totalCount = globalData.totalCount || globalData.totalRanking.length;
+            if (myRank > 0) {
+                document.getElementById('infoBanner').innerHTML = `📊 총 ${totalCount}명 중 ${myRank}등`;
             } else {
-                await loadGlobalRanking();
+                document.getElementById('infoBanner').innerHTML = `💡 매주 월요일 0시에 주간 랭킹이 초기화됩니다`;
             }
-        }
-        
-        // 학교 내 랭킹 로드
-        async function loadSchoolRanking() {
-            try {
-                document.getElementById('schoolLoading').style.display = 'block';
-                document.getElementById('schoolContent').style.display = 'none';
-                
-                const data = await api.getSchoolRivals();
-                schoolData = data;
-                
-                document.getElementById('schoolLoading').style.display = 'none';
-                document.getElementById('schoolContent').style.display = 'block';
-                
-                displaySchoolRanking();
-                
-            } catch (error) {
-                console.error('학교 랭킹 로드 실패:', error);
-                document.getElementById('schoolLoading').innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">⚠️</div>
-                        <p>랭킹을 불러올 수 없습니다</p>
-                    </div>
-                `;
-            }
-        }
-        
-        // 학교 랭킹 표시
-        function displaySchoolRanking() {
-            if (!schoolData || !schoolData.rivals || schoolData.rivals.length === 0) {
-                document.getElementById('schoolRankingList').innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">😊</div>
-                        <p>아직 같은 학교에 다른 사용자가 없어요</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            // 학교급 필터링
-            const filtered = schoolData.rivals.filter(user => 
-                user.schoolLevel && user.schoolLevel.includes(currentSchoolLevel)
-            );
-            
-            if (filtered.length === 0) {
-                document.getElementById('schoolRankingList').innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">😊</div>
-                        <p>아직 ${currentSchoolLevel}에 다른 사용자가 없어요</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            // 정렬
-            const sorted = currentRankingType === 'total' 
-                ? [...filtered].sort((a, b) => b.totalMinutes - a.totalMinutes)
-                : [...filtered].sort((a, b) => b.weeklyMinutes - a.weeklyMinutes);
-            
-            document.getElementById('schoolRankingList').innerHTML = sorted.map((user, index) => {
-                const minutes = currentRankingType === 'total' ? user.totalMinutes : user.weeklyMinutes;
-                const hours = Math.floor(minutes / 60);
+            totalList.innerHTML = globalData.totalRanking.map((user, index) => {
                 const rank = index + 1;
-                
                 return `
                     <div class="ranking-card ${user.isCurrentUser ? 'current-user' : ''}">
                         <div class="rank ${rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : ''}">${rank}</div>
                         <div class="user-info">
                             <div class="nickname">${user.nickname} ${user.isCurrentUser ? '(나)' : ''}</div>
-                            <div class="school-info">${user.schoolLevel}</div>
+                            <div class="school-info">${user.school} · ${user.region}</div>
                         </div>
                         <div class="stats">
-                            <div class="hours">${hours}시간</div>
-                            <div class="label">${currentRankingType === 'total' ? '전체' : '이번 주'}</div>
+                            <div class="hours">${user.totalHours}시간</div>
+                            <div class="label">전체 누적</div>
                         </div>
                     </div>
                 `;
             }).join('');
         }
-        
-        // 전국 랭킹 로드
-        async function loadGlobalRanking() {
-            try {
-                document.getElementById('globalLoading').style.display = 'block';
-                document.getElementById('globalContent').style.display = 'none';
-                
-                const data = await api.getGlobalRank(currentSchoolLevel);
-                globalData = data;
-                
-                document.getElementById('globalLoading').style.display = 'none';
-                document.getElementById('globalContent').style.display = 'block';
-                
-               // 카테고리 표시
-const totalCount = globalData.totalCount || 0;
-document.getElementById('categoryBadge').textContent = `${currentSchoolLevel} 랭킹 (총 ${totalCount}명)`;
 
-displayGlobalRanking();
-                
-            } catch (error) {
-                console.error('전국 랭킹 로드 실패:', error);
-                document.getElementById('globalLoading').innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">⚠️</div>
-                        <p>랭킹을 불러올 수 없습니다</p>
+        // 이번 주
+        const weeklyList = document.getElementById('weeklyRankingList');
+        const weeklyFiltered = globalData.weeklyRanking ? globalData.weeklyRanking.filter(u => u.weeklyMinutes > 0) : [];
+        if (weeklyFiltered.length === 0) {
+            weeklyList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">😊</div>
+                    <p>아직 이번 주 랭킹 데이터가 없어요</p>
+                </div>
+            `;
+        } else {
+            weeklyList.innerHTML = weeklyFiltered.map((user, index) => {
+                const rank = index + 1;
+                return `
+                    <div class="ranking-card ${user.isCurrentUser ? 'current-user' : ''}">
+                        <div class="rank ${rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : ''}">${rank}</div>
+                        <div class="user-info">
+                            <div class="nickname">${user.nickname} ${user.isCurrentUser ? '(나)' : ''}</div>
+                            <div class="school-info">${user.school} · ${user.region}</div>
+                        </div>
+                        <div class="stats">
+                            <div class="hours">${user.weeklyHours}시간</div>
+                            <div class="label">이번 주</div>
+                        </div>
                     </div>
                 `;
-            }
+            }).join('');
         }
-        
-        // 전국 랭킹 표시
-        function displayGlobalRanking() {
-            if (!globalData) return;
-            
-            // 전체 누적 랭킹
-            const totalList = document.getElementById('totalRankingList');
-            if (!globalData.totalRanking || globalData.totalRanking.length === 0) {
-                totalList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">😊</div>
-                        <p>아직 랭킹 데이터가 없어요</p>
-                    </div>
-                `;
-            } else {
-    
-    // 내 순위 찾기
-    const myRank = globalData.totalRanking.findIndex(u => u.isCurrentUser) + 1;
-    const totalCount = globalData.totalCount || globalData.totalRanking.length;
-    
-    // 내 순위 표시
-    if (myRank > 0) {
-        document.getElementById('infoBanner').innerHTML = `📊 총 ${totalCount}명 중 ${myRank}등`;
-    } else {
-        document.getElementById('infoBanner').innerHTML = `💡 매주 월요일 0시에 주간 랭킹이 초기화됩니다`;
     }
-    
-    // 학교급 필터링
-    totalList.innerHTML = globalData.totalRanking.map((user, index) => {
-                    const rank = index + 1;
-                    return `
-                        <div class="ranking-card ${user.isCurrentUser ? 'current-user' : ''}">
-                            <div class="rank ${rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : ''}">${rank}</div>
-                            <div class="user-info">
-                                <div class="nickname">${user.nickname} ${user.isCurrentUser ? '(나)' : ''}</div>
-                                <div class="school-info">${user.school} · ${user.region}</div>
-                            </div>
-                            <div class="stats">
-                                <div class="hours">${user.totalHours}시간</div>
-                                <div class="label">전체 누적</div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-               } 
-            }
-            
-            // 이번 주 랭킹
-            const weeklyList = document.getElementById('weeklyRankingList');
-            if (!globalData || !globalData.weeklyRanking || globalData.weeklyRanking.filter(u => u.weeklyMinutes > 0).length === 0) {
-                weeklyList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">😊</div>
-                        <p>아직 이번 주 랭킹 데이터가 없어요</p>
-                    </div>
-                `;
-                
-            } else {
-                // 학교급 필터링
-                weeklyList.innerHTML = globalData.weeklyRanking.filter(u => u.weeklyMinutes > 0).map((user, index) => {
-                    const rank = index + 1;
-                    return `
-                        <div class="ranking-card ${user.isCurrentUser ? 'current-user' : ''}">
-                            <div class="rank ${rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : ''}">${rank}</div>
-                            <div class="user-info">
-                                <div class="nickname">${user.nickname} ${user.isCurrentUser ? '(나)' : ''}</div>
-                                <div class="school-info">${user.school} · ${user.region}</div>
-                            </div>
-                            <div class="stats">
-                                <div class="hours">${user.weeklyHours}시간</div>
-                                <div class="label">이번 주</div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (!isAuthenticated()) {
+            window.location.href = 'index.html';
+            return;
         }
-        
-        // 초기 로드
-        window.addEventListener('DOMContentLoaded', () => {
-            if (!isAuthenticated()) {
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            // 사용자 학교급 자동 선택
-            const user = getCurrentUser();
-            if (user && user.school_level) {
-                if (user.school_level.includes('초등학교')) {
-                    currentSchoolLevel = '초등학교';
-                } else if (user.school_level.includes('중학교')) {
-                    currentSchoolLevel = '중학교';
-                } else if (user.school_level.includes('고등학교')) {
-                    currentSchoolLevel = '고등학교';
-                } else if (user.school_level.includes('대학교')) {
-                    currentSchoolLevel = '대학교';
-                } else if (user.school_level.includes('대학원')) {
-                    currentSchoolLevel = '대학원';
-                }
-                
-                // 해당 탭 활성화
-                document.querySelectorAll('.school-level-tab').forEach(tab => {
-                    tab.classList.remove('active');
-                    if (tab.dataset.level === currentSchoolLevel) {
-                        tab.classList.add('active');
-                    }
-                });
-            }
-            
-            loadSchoolRanking();
-        });
-    </script>
+
+        const user = getCurrentUser();
+        if (user && user.school_level) {
+            if (user.school_level.includes('초등학교')) currentSchoolLevel = '초등학교';
+            else if (user.school_level.includes('중학교')) currentSchoolLevel = '중학교';
+            else if (user.school_level.includes('고등학교')) currentSchoolLevel = '고등학교';
+            else if (user.school_level.includes('대학교')) currentSchoolLevel = '대학교';
+            else if (user.school_level.includes('대학원')) currentSchoolLevel = '대학원';
+
+            document.querySelectorAll('.school-level-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.level === currentSchoolLevel) tab.classList.add('active');
+            });
+        }
+
+        loadSchoolRanking();
+    });
+</script>
     <!-- PWA Service Worker -->
 <script>
 if ('serviceWorker' in navigator) {
