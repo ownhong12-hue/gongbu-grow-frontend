@@ -608,7 +608,20 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-    <!-- 코칭 배너 -->
+}, 30000);
+    </script>
+    <!-- PWA Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(() => console.log('✅ PWA 등록 성공'))
+      .catch((error) => console.log('❌ PWA 등록 실패:', error));
+  });
+}
+</script>
+
+<!-- 코칭 배너 -->
 <div id="coaching-banner" style="
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -621,9 +634,7 @@ if ('serviceWorker' in navigator) {
     gap: 14px;
     cursor: pointer;
     font-family: 'Noto Sans KR', sans-serif;
-    text-decoration: none;
 " onclick="window.open('https://open.kakao.com/o/s3yNH4Fh', '_blank')">
-
     <div style="
         width: 44px; height: 44px;
         border-radius: 12px;
@@ -632,7 +643,6 @@ if ('serviceWorker' in navigator) {
         font-size: 20px; flex-shrink: 0;
         box-shadow: 0 4px 16px rgba(180,80,240,0.35);
     ">📚</div>
-
     <div style="flex: 1;">
         <div style="font-size: 10px; color: rgba(200,130,255,0.8); font-weight: 500; margin-bottom: 2px;">
             1:1 전과목 공부법 코칭
@@ -641,7 +651,6 @@ if ('serviceWorker' in navigator) {
             뭘, 어떻게 공부해야 할지<br>모르겠다면 — 잡아드릴게요
         </div>
     </div>
-
     <div style="
         background: linear-gradient(135deg, #c060e8, #9040d0);
         color: #fff; font-size: 11px; font-weight: 700;
@@ -650,15 +659,27 @@ if ('serviceWorker' in navigator) {
         box-shadow: 0 4px 12px rgba(160,60,220,0.4);
         flex-shrink: 0;
     ">무료상담<br>받기 →</div>
-
     <!-- 닫기 버튼 -->
-    <div onclick="event.stopPropagation(); document.getElementById('coaching-banner').style.display='none';" style="
+    <div onclick="event.stopPropagation();
+        document.getElementById('coaching-banner').style.display='none';
+        localStorage.setItem('banner_closed', Date.now());" style="
         color: rgba(200,130,255,0.5); font-size: 18px;
         flex-shrink: 0; padding: 4px; cursor: pointer;
     ">✕</div>
 </div>
 
+<!-- 24시간 닫기 체크 -->
+<script>
+    const closed = localStorage.getItem('banner_closed');
+    if (closed && Date.now() - closed < 86400000) {
+        document.getElementById('coaching-banner').style.display = 'none';
+    }
+</script>
+
 <!-- 배너 높이만큼 하단 여백 -->
 <div style="height: 80px;"></div>
+
+</body>
+</html>
 </body>
 </html>
