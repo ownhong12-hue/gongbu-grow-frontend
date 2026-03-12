@@ -713,12 +713,13 @@
             <label>문제 번호</label>
             <input class="input-field" id="wrongProblemNum" placeholder="예: 17" style="width:100%;">
             <label>오답 원인</label>
-            <select class="input-field" id="wrongReason" style="width:100%;">
+            <select class="input-field" id="wrongReason" style="width:100%;" onchange="toggleEtcInput()">
                 <option value="개념부족">개념 부족</option>
                 <option value="실수">실수</option>
                 <option value="시간부족">시간 부족</option>
                 <option value="기타">기타</option>
             </select>
+            <input class="input-field" id="wrongReasonEtc" placeholder="직접 입력" style="width:100%; display:none; margin-top:8px;">
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal('addWrongModal')">취소</button>
                 <button class="btn btn-primary" onclick="addWrongAnswer()">저장</button>
@@ -1137,7 +1138,9 @@
                 subject_id: document.getElementById('wrongSubject').value || null,
                 part_id: document.getElementById('wrongPart').value || null,
                 problem_number: document.getElementById('wrongProblemNum').value.trim(),
-                reason: document.getElementById('wrongReason').value
+                reason: document.getElementById('wrongReason').value === '기타'
+    ? (document.getElementById('wrongReasonEtc').value || '기타')
+    : document.getElementById('wrongReason').value,
             };
             await apiFetch('add-wrong', 'POST', body);
             closeModal('addWrongModal');
@@ -1157,6 +1160,10 @@
         }
 
         // 공통
+        function toggleEtcInput() {
+    const val = document.getElementById('wrongReason').value;
+    document.getElementById('wrongReasonEtc').style.display = val === '기타' ? 'block' : 'none';
+}
         function openAddSubjectModal() { document.getElementById('addSubjectModal').classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
