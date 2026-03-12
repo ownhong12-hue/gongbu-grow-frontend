@@ -89,4 +89,11 @@ async function handler(req, res) {
     return userStats(req, res);
 }
 
-module.exports = authenticateToken(handler);
+async function mainHandler(req, res) {
+    if (req.query.action === 'public') {
+        return publicStats(req, res);
+    }
+    return authenticateToken(handler)(req, res);
+}
+
+module.exports = mainHandler;
