@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gongbu-v4';
+const CACHE_NAME = 'gongbu-v5';
 const urlsToCache = [
   '/',
   '/index.html',
