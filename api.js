@@ -82,43 +82,37 @@ const api = {
     
     // 통계 조회
     async getActiveStats() {
-    const response = await fetch(`${API_BASE_URL}/stats-active`);  // active → stats-active
+    const response = await fetch(`${API_BASE_URL}/stats?action=public`);
     return response.json();
 },
-    
-    // 사용자 통계
-    async getUserStats() {
-        const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-        const response = await fetch(`${API_BASE_URL}/stats/user`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        return response.json();
-    },
-    
-    // 라이벌 (같은 학교)
-    async getSchoolRivals() {
-        const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-        const response = await fetch(`${API_BASE_URL}/rivals/school`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        return response.json();
-    },
-    
-   // 전국 랭킹 - 학교급 파라미터 추가
+
+async getUserStats() {
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    const response = await fetch(`${API_BASE_URL}/stats`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+},
+
+async getSchoolRivals() {
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    const response = await fetch(`${API_BASE_URL}/rivals?action=school`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+},
+
 async getGlobalRank(schoolLevel) {
     const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-    let url = `${API_BASE_URL}/rivals/global`;
-    
-    // 학교급이 지정되면 쿼리 파라미터로 전달
+    let url = `${API_BASE_URL}/rivals?action=global`;
     if (schoolLevel) {
-        url += `?schoolLevel=${encodeURIComponent(schoolLevel)}`;
+        url += `&schoolLevel=${encodeURIComponent(schoolLevel)}`;
     }
-    
     const response = await fetch(url, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
     return response.json();
-    }
+}
 };
 
 // 인증 상태 확인
