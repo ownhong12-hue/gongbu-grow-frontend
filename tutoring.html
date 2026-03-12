@@ -590,7 +590,7 @@
             <div id="tab-wrong" class="tab-content">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
                     <div class="filter-row" style="margin:0; flex:1;">
-                        <select class="input-field" id="wrongSubjectFilter" onchange="loadWrongAnswers()">
+                        <select class="input-field" id="wrongSubjectFilter" onchange="updatePartSelect('wrongSubjectFilter','wrongPartFilter'); loadWrongAnswers();">
                             <option value="">전체 과목</option>
                         </select>
                         <select class="input-field" id="wrongPartFilter" onchange="loadWrongAnswers()">
