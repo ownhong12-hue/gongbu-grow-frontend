@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>과외 - 공부.성장</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --bg-light: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        .header {
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border);
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+        /* ROLE 선택 화면 */
+        .role-select {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .role-select h2 {
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin-bottom: 12px;
+        }
+        .role-select p {
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+        .role-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .role-card {
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 30px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .role-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(99,102,241,0.2);
+        }
+        .role-card .icon { font-size: 3rem; margin-bottom: 12px; }
+        .role-card .title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+        .role-card .desc { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* 메인 화면 */
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 700;
+            font-family: 'Noto Sans KR', sans-serif;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.82rem;
+        }
+
+        .room-card {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .room-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99,102,241,0.2);
+        }
+        .room-card .room-name { font-size: 1.1rem; font-weight: 700; }
+        .room-card .room-code {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        .room-card .room-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+        .room-card .arrow { font-size: 1.5rem; color: var(--text-muted); }
+
+        /* 입력창 */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .input-field {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        textarea.input-field {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* 모달 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; }
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        .btn-cancel {
+            background: var(--border);
+            color: var(--text);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-weight: 700;
+        }
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            margin-top: 14px;
+        }
+
+        /* 방 상세 */
+        .room-detail { display: none; }
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .back-btn:hover { color: var(--text); }
+
+        /* 탭 */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: transparent;
+            color: white;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* 수업 기록 카드 */
+        .lesson-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+        }
+        .lesson-card .lesson-date {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .lesson-card .lesson-section {
+            margin-bottom: 10px;
+        }
+        .lesson-card .lesson-section-title {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .lesson-card .lesson-section-content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .lesson-card .lesson-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+        .lesson-card .duration-badge {
+            background: rgba(99,102,241,0.1);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        /* 시험 성적 카드 */
+        .exam-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .exam-card .exam-name { font-weight: 700; margin-bottom: 4px; }
+        .exam-card .exam-meta { font-size: 0.82rem; color: var(--text-muted); }
+        .exam-card .exam-score {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+
+        /* 오답 카드 */
+        .wrong-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .wrong-card.resolved { opacity: 0.5; }
+        .wrong-card .problem-num {
+            background: var(--primary);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .wrong-card.resolved .problem-num { background: var(--border); }
+        .wrong-card .wrong-info { flex: 1; }
+        .wrong-card .wrong-subject { font-weight: 700; font-size: 0.9rem; }
+        .wrong-card .wrong-reason {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .resolve-btn {
+            background: rgba(16,185,129,0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: 'Noto Sans KR', sans-serif;
+            flex-shrink: 0;
+        }
+
+        /* 과목/파트 설정 */
+        .subject-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+        }
+        .subject-item .subject-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .subject-item .subject-name { font-weight: 700; }
+        .part-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+        .part-tag {
+            background: rgba(99,102,241,0.1);
+            color: var(--primary);
+            border: 1px solid rgba(99,102,241,0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .part-tag .del { cursor: pointer; color: var(--text-muted); }
+        .part-tag .del:hover { color: var(--danger); }
+
+        /* 방 코드 표시 */
+        .room-code-display {
+            background: rgba(99,102,241,0.1);
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .room-code-display .code {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: var(--primary);
+        }
+        .copy-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 700;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        /* 필터 */
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        select.input-field {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        /* 네비바 */
+        .nav-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: var(--bg-light);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            transition: all 0.3s;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 1.5rem; }
+
+        .divider { height: 1px; background: var(--border); margin: 20px 0; }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .badge-teacher { background: rgba(99,102,241,0.2); color: var(--primary); }
+        .badge-student { background: rgba(16,185,129,0.2); color: var(--success); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 과외</h1>
+    </div>
+
+    <div class="container">
+
+        <!-- ROLE 선택 화면 -->
+        <div id="roleSelectScreen">
+            <div class="role-select">
+                <h2>과외 기능 시작하기</h2>
+                <p>어떻게 사용하실 건가요?</p>
+                <div class="role-cards">
+                    <div class="role-card" onclick="setRole('teacher')">
+                        <div class="icon">👨‍🏫</div>
+                        <div class="title">선생님</div>
+                        <div class="desc">과외방을 만들고<br>학생을 관리해요</div>
+                    </div>
+                    <div class="role-card" onclick="setRole('student')">
+                        <div class="icon">📖</div>
+                        <div class="title">학생</div>
+                        <div class="desc">코드를 입력해서<br>과외방에 참여해요</div>
+                    </div>
+                    <div class="role-card" onclick="setRole('both')">
+                        <div class="icon">⚡</div>
+                        <div class="title">둘 다</div>
+                        <div class="desc">선생님이면서<br>학생이기도 해요</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 화면 -->
+        <div id="mainScreen" style="display:none;">
+
+            <!-- 선생님: 내 과외방 -->
+            <div id="teacherSection" style="display:none;">
+                <div class="section-title">
+                    <span>👨‍🏫 내 과외방</span>
+                    <button class="btn btn-primary btn-sm" onclick="openCreateRoomModal()">+ 새 방 만들기</button>
+                </div>
+                <div id="teacherRoomList"><div class="loading">로딩 중...</div></div>
+                <div class="divider"></div>
+            </div>
+
+            <!-- 학생: 참여 중인 방 -->
+            <div id="studentSection" style="display:none;">
+                <div class="section-title">
+                    <span>📖 참여 중인 방</span>
+                    <button class="btn btn-success btn-sm" onclick="openJoinRoomModal()">코드로 참여</button>
+                </div>
+                <div id="studentRoomList"><div class="loading">로딩 중...</div></div>
+            </div>
+        </div>
+
+        <!-- 방 상세 화면 -->
+        <div id="roomDetailScreen" class="room-detail">
+            <div class="back-btn" onclick="goBack()">← 목록으로</div>
+
+            <div class="room-code-display">
+                <div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px;">초대 코드</div>
+                    <div class="code" id="detailRoomCode"></div>
+                </div>
+                <button class="copy-btn" onclick="copyCode()">복사</button>
+            </div>
+
+            <h2 id="detailRoomName" style="font-size:1.4rem; font-weight:900; margin-bottom:20px;"></h2>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('lessons')">📝 수업 기록</div>
+                <div class="tab" onclick="switchTab('exams')">📊 시험 성적</div>
+                <div class="tab" onclick="switchTab('wrong')">❌ 오답 노트</div>
+                <div class="tab" onclick="switchTab('settings')">⚙️ 설정</div>
+            </div>
+
+            <!-- 수업 기록 탭 -->
+            <div id="tab-lessons" class="tab-content active">
+                <div style="text-align:right; margin-bottom:16px;">
+                    <button class="btn btn-primary btn-sm" onclick="openAddLessonModal()">+ 수업 기록 추가</button>
+                </div>
+                <div id="lessonList"><div class="loading">로딩 중...</div></div>
+            </div>
+
+            <!-- 시험 성적 탭 -->
+            <div id="tab-exams" class="tab-content">
+                <div style="text-align:right; margin-bottom:16px;">
+                    <button class="btn btn-primary btn-sm" onclick="openAddExamModal()">+ 시험 성적 추가</button>
+                </div>
+                <div id="examList"><div class="loading">로딩 중...</div></div>
+            </div>
+
+            <!-- 오답 노트 탭 -->
+            <div id="tab-wrong" class="tab-content">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                    <div class="filter-row" style="margin:0; flex:1;">
+                        <select class="input-field" id="wrongSubjectFilter" onchange="loadWrongAnswers()">
+                            <option value="">전체 과목</option>
+                        </select>
+                        <select class="input-field" id="wrongPartFilter" onchange="loadWrongAnswers()">
+                            <option value="">전체 파트</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="openAddWrongModal()">+ 오답 추가</button>
+                </div>
+                <div id="wrongList"><div class="loading">로딩 중...</div></div>
+            </div>
+
+            <!-- 설정 탭 -->
+            <div id="tab-settings" class="tab-content">
+                <div class="section-title" style="margin-top:0;">
+                    <span>과목 & 파트 관리</span>
+                    <button class="btn btn-primary btn-sm" onclick="openAddSubjectModal()">+ 과목 추가</button>
+                </div>
+                <div id="subjectList"><div class="loading">로딩 중...</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 네비바 -->
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-item">
+            <div class="nav-icon">📊</div>
+            <div>대시보드</div>
+        </a>
+        <a href="study-log.html" class="nav-item">
+            <div class="nav-icon">✏️</div>
+            <div>학습기록</div>
+        </a>
+        <a href="rivals.html" class="nav-item">
+            <div class="nav-icon">🏆</div>
+            <div>라이벌</div>
+        </a>
+        <a href="tutoring.html" class="nav-item active">
+            <div class="nav-icon">📚</div>
+            <div>과외</div>
+        </a>
+    </nav>
+
+    <!-- 모달: 방 만들기 -->
+    <div class="modal-overlay" id="createRoomModal">
+        <div class="modal">
+            <h3>새 과외방 만들기</h3>
+            <label>방 이름 (학생 이름이나 과목)</label>
+            <input class="input-field" id="newRoomName" placeholder="예: 김민준 수학" style="width:100%;">
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('createRoomModal')">취소</button>
+                <button class="btn btn-primary" onclick="createRoom()">만들기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달: 방 참여 -->
+    <div class="modal-overlay" id="joinRoomModal">
+        <div class="modal">
+            <h3>코드로 참여하기</h3>
+            <label>초대 코드 6자리</label>
+            <input class="input-field" id="joinCode" placeholder="예: ABC123" style="width:100%; text-transform:uppercase; letter-spacing:4px;" maxlength="6">
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('joinRoomModal')">취소</button>
+                <button class="btn btn-success" onclick="joinRoom()">참여하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달: 수업 기록 추가 -->
+    <div class="modal-overlay" id="addLessonModal">
+        <div class="modal">
+            <h3>수업 기록 추가</h3>
+            <label>수업 날짜</label>
+            <input type="date" class="input-field" id="lessonDate" style="width:100%;">
+            <label>학습 내용</label>
+            <textarea class="input-field" id="lessonContent" placeholder="오늘 학습한 내용을 입력하세요" style="width:100%;"></textarea>
+            <label>피드백 (잘한 점, 부족한 점)</label>
+            <textarea class="input-field" id="lessonFeedback" placeholder="수업 중 피드백을 입력하세요" style="width:100%;"></textarea>
+            <label>다음 수업까지 계획/과제</label>
+            <textarea class="input-field" id="lessonPlan" placeholder="다음 수업 전까지 할 것들" style="width:100%;"></textarea>
+            <label>수업 시간 (분)</label>
+            <input type="number" class="input-field" id="lessonDuration" placeholder="예: 90" style="width:100%;">
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('addLessonModal')">취소</button>
+                <button class="btn btn-primary" onclick="addLesson()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달: 시험 성적 추가 -->
+    <div class="modal-overlay" id="addExamModal">
+        <div class="modal">
+            <h3>시험 성적 추가</h3>
+            <label>시험명</label>
+            <input class="input-field" id="examName" placeholder="예: 2025년 3월 모의고사" style="width:100%;">
+            <label>과목</label>
+            <select class="input-field" id="examSubject" style="width:100%;"></select>
+            <label>시험 날짜</label>
+            <input type="date" class="input-field" id="examDate" style="width:100%;">
+            <label>점수</label>
+            <div style="display:flex; gap:10px;">
+                <input type="number" class="input-field" id="examScore" placeholder="취득 점수">
+                <input type="number" class="input-field" id="examMaxScore" placeholder="만점 (기본 100)">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('addExamModal')">취소</button>
+                <button class="btn btn-primary" onclick="addExam()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달: 오답 추가 -->
+    <div class="modal-overlay" id="addWrongModal">
+        <div class="modal">
+            <h3>오답 추가</h3>
+            <label>과목</label>
+            <select class="input-field" id="wrongSubject" style="width:100%;" onchange="updatePartSelect('wrongSubject', 'wrongPart')"></select>
+            <label>파트</label>
+            <select class="input-field" id="wrongPart" style="width:100%;"></select>
+            <label>문제 번호</label>
+            <input class="input-field" id="wrongProblemNum" placeholder="예: 17" style="width:100%;">
+            <label>오답 원인</label>
+            <select class="input-field" id="wrongReason" style="width:100%;">
+                <option value="개념부족">개념 부족</option>
+                <option value="실수">실수</option>
+                <option value="시간부족">시간 부족</option>
+                <option value="기타">기타</option>
+            </select>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('addWrongModal')">취소</button>
+                <button class="btn btn-primary" onclick="addWrongAnswer()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달: 과목 추가 -->
+    <div class="modal-overlay" id="addSubjectModal">
+        <div class="modal">
+            <h3>과목 추가</h3>
+            <label>과목 이름</label>
+            <input class="input-field" id="newSubjectName" placeholder="예: 수학, 영어, 국어" style="width:100%;">
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('addSubjectModal')">취소</button>
+                <button class="btn btn-primary" onclick="addSubject()">추가</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달: 파트 추가 -->
+    <div class="modal-overlay" id="addPartModal">
+        <div class="modal">
+            <h3 id="addPartModalTitle">파트 추가</h3>
+            <label>파트 이름</label>
+            <input class="input-field" id="newPartName" placeholder="예: 수1, 문학, 독해" style="width:100%;">
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('addPartModal')">취소</button>
+                <button class="btn btn-primary" onclick="addPart()">추가</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        const API = '/api/tutoring';
+        let currentRoomId = null;
+        let currentRoomCode = null;
+        let subjects = [];
+        let parts = [];
+        let selectedSubjectId = null;
+
+        function getToken() { return localStorage.getItem('gongbu_token'); }
+        function authHeaders() { return { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json' }; }
+
+        async function apiFetch(action, method = 'GET', body = null, extra = '') {
+            const url = `${API}?action=${action}${extra}`;
+            const opts = { method, headers: authHeaders() };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(url, opts);
+            return res.json();
+        }
+
+        // 초기화
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (!isAuthenticated()) { window.location.href = 'index.html'; return; }
+            const data = await apiFetch('my-role');
+            if (!data.role) {
+                document.getElementById('roleSelectScreen').style.display = 'block';
+            } else {
+                showMainScreen(data.role);
+            }
+        });
+
+        // role 설정
+        async function setRole(role) {
+            await apiFetch('set-role', 'PUT', { role });
+            showMainScreen(role);
+        }
+
+        function showMainScreen(role) {
+            document.getElementById('roleSelectScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'block';
+            if (role === 'teacher' || role === 'both') {
+                document.getElementById('teacherSection').style.display = 'block';
+            }
+            if (role === 'student' || role === 'both') {
+                document.getElementById('studentSection').style.display = 'block';
+            }
+            loadMyRooms();
+        }
+
+        async function loadMyRooms() {
+            const data = await apiFetch('my-rooms');
+            // 선생님 방
+            const tList = document.getElementById('teacherRoomList');
+            if (data.teacher_rooms && data.teacher_rooms.length > 0) {
+                tList.innerHTML = data.teacher_rooms.map(r => `
+                    <div class="room-card" onclick="openRoom(${r.id}, '${r.room_code}', '${r.room_name}')">
+                        <div>
+                            <div class="room-name">${r.room_name}</div>
+                            <div class="room-code">${r.room_code}</div>
+                            <div class="room-meta">학생 ${r.member_count || 0}명</div>
+                        </div>
+                        <div class="arrow">›</div>
+                    </div>
+                `).join('');
+            } else if (tList) {
+                tList.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>아직 과외방이 없어요</p></div>';
+            }
+            // 학생 방
+            const sList = document.getElementById('studentRoomList');
+            if (data.student_rooms && data.student_rooms.length > 0) {
+                sList.innerHTML = data.student_rooms.map(r => `
+                    <div class="room-card" onclick="openRoom(${r.id}, '${r.room_code}', '${r.room_name}')">
+                        <div>
+                            <div class="room-name">${r.room_name}</div>
+                            <div class="room-meta">선생님: ${r.teacher_nickname}</div>
+                        </div>
+                        <div class="arrow">›</div>
+                    </div>
+                `).join('');
+            } else if (sList) {
+                sList.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>참여 중인 방이 없어요</p></div>';
+            }
+        }
+
+        // 방 만들기
+        function openCreateRoomModal() { document.getElementById('createRoomModal').classList.add('active'); }
+        async function createRoom() {
+            const name = document.getElementById('newRoomName').value.trim();
+            if (!name) return alert('방 이름을 입력해주세요.');
+            const data = await apiFetch('create-room', 'POST', { room_name: name });
+            if (data.success) {
+                closeModal('createRoomModal');
+                document.getElementById('newRoomName').value = '';
+                loadMyRooms();
+                alert(`방이 만들어졌어요! 코드: ${data.room.room_code}`);
+            } else {
+                alert(data.error || '오류가 발생했습니다.');
+            }
+        }
+
+        // 방 참여
+        function openJoinRoomModal() { document.getElementById('joinRoomModal').classList.add('active'); }
+        async function joinRoom() {
+            const code = document.getElementById('joinCode').value.trim().toUpperCase();
+            if (!code || code.length !== 6) return alert('6자리 코드를 입력해주세요.');
+            const data = await apiFetch('join-room', 'POST', { room_code: code });
+            if (data.success) {
+                closeModal('joinRoomModal');
+                document.getElementById('joinCode').value = '';
+                loadMyRooms();
+                alert('참여했어요!');
+            } else {
+                alert(data.error || '오류가 발생했습니다.');
+            }
+        }
+
+        // 방 상세 열기
+        async function openRoom(id, code, name) {
+            currentRoomId = id;
+            currentRoomCode = code;
+            document.getElementById('mainScreen').style.display = 'none';
+            document.getElementById('roomDetailScreen').style.display = 'block';
+            document.getElementById('detailRoomCode').textContent = code;
+            document.getElementById('detailRoomName').textContent = name;
+            switchTab('lessons');
+            await loadSubjects();
+            loadLessons();
+        }
+
+        function goBack() {
+            document.getElementById('roomDetailScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'block';
+            currentRoomId = null;
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(currentRoomCode);
+            alert('코드가 복사됐어요!');
+        }
+
+        // 탭 전환
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                const tabs = ['lessons', 'exams', 'wrong', 'settings'];
+                t.classList.toggle('active', tabs[i] === tab);
+            });
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            if (tab === 'lessons') loadLessons();
+            if (tab === 'exams') loadExams();
+            if (tab === 'wrong') loadWrongAnswers();
+            if (tab === 'settings') loadSubjects();
+        }
+
+        // ==================== 과목/파트 ====================
+        async function loadSubjects() {
+            const data = await apiFetch('subjects', 'GET', null, `&room_id=${currentRoomId}`);
+            subjects = data.subjects || [];
+            parts = data.parts || [];
+            renderSubjects();
+            updateSubjectSelects();
+        }
+
+        function renderSubjects() {
+            const list = document.getElementById('subjectList');
+            if (!list) return;
+            if (subjects.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="icon">📚</div><p>과목을 추가해보세요</p></div>';
+                return;
+            }
+            list.innerHTML = subjects.map(s => {
+                const sParts = parts.filter(p => p.subject_id === s.id);
+                return `
+                    <div class="subject-item">
+                        <div class="subject-header">
+                            <div class="subject-name">${s.subject_name}</div>
+                            <button class="btn btn-danger" onclick="deleteSubject(${s.id})">삭제</button>
+                        </div>
+                        <div class="part-list">
+                            ${sParts.map(p => `
+                                <div class="part-tag">
+                                    ${p.part_name}
+                                    <span class="del" onclick="deletePart(${p.id})">×</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="input-group" style="margin-bottom:0;">
+                            <input class="input-field" id="partInput-${s.id}" placeholder="파트 이름 입력" style="font-size:0.85rem; padding:8px 12px;">
+                            <button class="btn btn-primary btn-sm" onclick="addPartInline(${s.id})">추가</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateSubjectSelects() {
+            const selects = ['examSubject', 'wrongSubject', 'wrongSubjectFilter'];
+            selects.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const hasEmpty = id !== 'examSubject';
+                el.innerHTML = (hasEmpty ? '<option value="">전체 과목</option>' : '<option value="">과목 선택</option>') +
+                    subjects.map(s => `<option value="${s.id}">${s.subject_name}</option>`).join('');
+            });
+            updatePartSelect('wrongSubject', 'wrongPart');
+            updatePartSelect('wrongSubjectFilter', 'wrongPartFilter');
+        }
+
+        function updatePartSelect(subjectSelectId, partSelectId) {
+            const subjectId = document.getElementById(subjectSelectId)?.value;
+            const partEl = document.getElementById(partSelectId);
+            if (!partEl) return;
+            const filteredParts = subjectId ? parts.filter(p => p.subject_id == subjectId) : [];
+            partEl.innerHTML = '<option value="">전체 파트</option>' +
+                filteredParts.map(p => `<option value="${p.id}">${p.part_name}</option>`).join('');
+        }
+
+        async function addSubject() {
+            const name = document.getElementById('newSubjectName').value.trim();
+            if (!name) return alert('과목 이름을 입력해주세요.');
+            await apiFetch('add-subject', 'POST', { room_id: currentRoomId, subject_name: name });
+            closeModal('addSubjectModal');
+            document.getElementById('newSubjectName').value = '';
+            loadSubjects();
+        }
+
+        async function addPartInline(subjectId) {
+            const input = document.getElementById(`partInput-${subjectId}`);
+            const name = input.value.trim();
+            if (!name) return alert('파트 이름을 입력해주세요.');
+            await apiFetch('add-part', 'POST', { subject_id: subjectId, part_name: name });
+            input.value = '';
+            loadSubjects();
+        }
+
+        async function deleteSubject(id) {
+            if (!confirm('과목을 삭제하면 관련 파트도 모두 삭제됩니다.')) return;
+            await fetch(`${API}?action=delete-subject&subject_id=${id}`, { method: 'DELETE', headers: authHeaders() });
+            loadSubjects();
+        }
+
+        async function deletePart(id) {
+            await fetch(`${API}?action=delete-part&part_id=${id}`, { method: 'DELETE', headers: authHeaders() });
+            loadSubjects();
+        }
+
+        // ==================== 수업 기록 ====================
+        async function loadLessons() {
+            const data = await apiFetch('lessons', 'GET', null, `&room_id=${currentRoomId}`);
+            const list = document.getElementById('lessonList');
+            if (!data.lessons || data.lessons.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>수업 기록이 없어요</p></div>';
+                return;
+            }
+            list.innerHTML = data.lessons.map(l => `
+                <div class="lesson-card">
+                    <div class="lesson-date">📅 ${l.lesson_date?.slice(0,10)}</div>
+                    ${l.content ? `<div class="lesson-section"><div class="lesson-section-title">학습 내용</div><div class="lesson-section-content">${l.content}</div></div>` : ''}
+                    ${l.feedback ? `<div class="lesson-section"><div class="lesson-section-title">피드백</div><div class="lesson-section-content">${l.feedback}</div></div>` : ''}
+                    ${l.next_plan ? `<div class="lesson-section"><div class="lesson-section-title">다음 계획</div><div class="lesson-section-content">${l.next_plan}</div></div>` : ''}
+                    <div class="lesson-footer">
+                        ${l.duration_min ? `<div class="duration-badge">⏱️ ${l.duration_min}분</div>` : '<div></div>'}
+                        <button class="btn btn-danger" onclick="deleteLesson(${l.id})">삭제</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddLessonModal() {
+            document.getElementById('lessonDate').value = new Date().toISOString().slice(0,10);
+            document.getElementById('addLessonModal').classList.add('active');
+        }
+
+        async function addLesson() {
+            const body = {
+                room_id: currentRoomId,
+                lesson_date: document.getElementById('lessonDate').value,
+                content: document.getElementById('lessonContent').value,
+                feedback: document.getElementById('lessonFeedback').value,
+                next_plan: document.getElementById('lessonPlan').value,
+                duration_min: document.getElementById('lessonDuration').value || null
+            };
+            if (!body.lesson_date) return alert('날짜를 입력해주세요.');
+            await apiFetch('add-lesson', 'POST', body);
+            closeModal('addLessonModal');
+            ['lessonContent','lessonFeedback','lessonPlan','lessonDuration'].forEach(id => document.getElementById(id).value = '');
+            loadLessons();
+        }
+
+        async function deleteLesson(id) {
+            if (!confirm('수업 기록을 삭제할까요?')) return;
+            await fetch(`${API}?action=delete-lesson&lesson_id=${id}`, { method: 'DELETE', headers: authHeaders() });
+            loadLessons();
+        }
+
+        // ==================== 시험 성적 ====================
+        async function loadExams() {
+            const data = await apiFetch('exams', 'GET', null, `&room_id=${currentRoomId}`);
+            const list = document.getElementById('examList');
+            if (!data.exams || data.exams.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="icon">📊</div><p>시험 성적이 없어요</p></div>';
+                return;
+            }
+            list.innerHTML = data.exams.map(e => {
+                const pct = e.max_score ? Math.round(e.score / e.max_score * 100) : null;
+                return `
+                    <div class="exam-card">
+                        <div>
+                            <div class="exam-name">${e.exam_name}</div>
+                            <div class="exam-meta">${e.subject_name || '과목 미지정'} · ${e.exam_date?.slice(0,10)}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div class="exam-score">${e.score}${e.max_score ? `/${e.max_score}` : '점'}</div>
+                            <button class="btn btn-danger" onclick="deleteExam(${e.id})">삭제</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openAddExamModal() {
+            document.getElementById('examDate').value = new Date().toISOString().slice(0,10);
+            document.getElementById('examMaxScore').value = '100';
+            document.getElementById('addExamModal').classList.add('active');
+        }
+
+        async function addExam() {
+            const body = {
+                room_id: currentRoomId,
+                subject_id: document.getElementById('examSubject').value || null,
+                exam_name: document.getElementById('examName').value.trim(),
+                exam_date: document.getElementById('examDate').value,
+                score: document.getElementById('examScore').value,
+                max_score: document.getElementById('examMaxScore').value || 100
+            };
+            if (!body.exam_name || !body.exam_date) return alert('시험명과 날짜를 입력해주세요.');
+            await apiFetch('add-exam', 'POST', body);
+            closeModal('addExamModal');
+            ['examName','examScore'].forEach(id => document.getElementById(id).value = '');
+            loadExams();
+        }
+
+        async function deleteExam(id) {
+            if (!confirm('시험 성적을 삭제할까요?')) return;
+            await fetch(`${API}?action=delete-exam&exam_id=${id}`, { method: 'DELETE', headers: authHeaders() });
+            loadExams();
+        }
+
+        // ==================== 오답 노트 ====================
+        async function loadWrongAnswers() {
+            const subjectId = document.getElementById('wrongSubjectFilter')?.value;
+            const partId = document.getElementById('wrongPartFilter')?.value;
+            let extra = `&room_id=${currentRoomId}`;
+            if (subjectId) extra += `&subject_id=${subjectId}`;
+            if (partId) extra += `&part_id=${partId}`;
+            const data = await apiFetch('wrong-answers', 'GET', null, extra);
+            const list = document.getElementById('wrongList');
+            if (!data.wrong_answers || data.wrong_answers.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="icon">✅</div><p>오답이 없어요</p></div>';
+                return;
+            }
+            list.innerHTML = data.wrong_answers.map(w => `
+                <div class="wrong-card ${w.is_resolved ? 'resolved' : ''}">
+                    <div class="problem-num">${w.problem_number || '?'}</div>
+                    <div class="wrong-info">
+                        <div class="wrong-subject">${w.subject_name || '과목 미지정'} ${w.part_name ? `> ${w.part_name}` : ''}</div>
+                        <div class="wrong-reason">${w.reason} ${w.is_resolved ? '· ✅ 해결됨' : ''}</div>
+                    </div>
+                    ${!w.is_resolved ? `<button class="resolve-btn" onclick="resolveWrong(${w.id})">해결</button>` : ''}
+                    <button class="btn btn-danger" onclick="deleteWrong(${w.id})">삭제</button>
+                </div>
+            `).join('');
+        }
+
+        function openAddWrongModal() {
+            updateSubjectSelects();
+            document.getElementById('addWrongModal').classList.add('active');
+        }
+
+        async function addWrongAnswer() {
+            const body = {
+                room_id: currentRoomId,
+                subject_id: document.getElementById('wrongSubject').value || null,
+                part_id: document.getElementById('wrongPart').value || null,
+                problem_number: document.getElementById('wrongProblemNum').value.trim(),
+                reason: document.getElementById('wrongReason').value
+            };
+            await apiFetch('add-wrong', 'POST', body);
+            closeModal('addWrongModal');
+            document.getElementById('wrongProblemNum').value = '';
+            loadWrongAnswers();
+        }
+
+        async function resolveWrong(id) {
+            await apiFetch('resolve-wrong', 'PUT', { wrong_id: id });
+            loadWrongAnswers();
+        }
+
+        async function deleteWrong(id) {
+            if (!confirm('오답을 삭제할까요?')) return;
+            await fetch(`${API}?action=delete-wrong&wrong_id=${id}`, { method: 'DELETE', headers: authHeaders() });
+            loadWrongAnswers();
+        }
+
+        // 공통
+        function openAddSubjectModal() { document.getElementById('addSubjectModal').classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // 모달 외부 클릭 닫기
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
