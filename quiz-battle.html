@@ -223,7 +223,7 @@
         const subject = document.getElementById('soloSubject').value;
         if (!school_level || !grade || !semester || !subject) { alert('모든 항목을 선택해주세요!'); return; }
         try {
-            const res = await fetch(`/api/quiz-battle-questions?school_level=${school_level}&grade=${grade}&semester=${encodeURIComponent(semester)}&subject=${encodeURIComponent(subject)}&count=5`, {
+            const res = await fetch(`/api/quizzes?action=battle-questions&school_level=${school_level}&grade=${grade}&semester=${encodeURIComponent(semester)}&subject=${encodeURIComponent(subject)}&count=5`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -315,7 +315,7 @@
         document.getElementById('resultMsg').textContent = msgs[soloCorrect];
         document.getElementById('resultSub').textContent = subs[soloCorrect];
         try {
-            await fetch('/api/solo-results', {
+            await fetch('/api/quizzes?action=solo-result', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({
