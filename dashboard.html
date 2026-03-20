@@ -260,6 +260,83 @@
             .stats-grid { grid-template-columns: 1fr; }
             .school-categories { grid-template-columns: 1fr; }
         }
+        .recommend-section {
+    margin-top: 30px;
+}
+
+.recommend-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.recommend-category-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+.recommend-tab {
+    padding: 10px 20px;
+    background: var(--bg-light);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    color: var(--text);
+}
+
+.recommend-tab.active {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-color: transparent;
+    color: white;
+}
+
+.recommend-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.recommend-card {
+    background: var(--bg-light);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.recommend-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.recommend-card-icon {
+    font-size: 2rem;
+    min-width: 44px;
+    text-align: center;
+}
+
+.recommend-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.recommend-card-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
     </style>
 </head>
 <body>
@@ -484,6 +561,50 @@
         
         loadTopSchools();
         loadStats();
+const recommendData = {
+    study: [
+        { icon: '⏰', title: '시간관리 플래너', desc: '오너스 시간관리법', url: 'https://www.youtube.com/watch?v=UEZzq6T2sGQ' },
+        { icon: '🧠', title: '암기법', desc: '박교준 암기법', url: 'https://www.youtube.com/watch?v=Vt-tvpLHjF8' },
+        { icon: '🎯', title: '집중력', desc: '범작가 집중력', url: 'https://www.youtube.com/shorts/BRKVB7D1ACo' },
+        { icon: '💪', title: '멘탈 관리법', desc: '미미미누 멘탈관리법', url: 'https://www.youtube.com/watch?v=Tt6-_j1b6tc' },
+        { icon: '📝', title: '수능 공부법', desc: '수능 119', url: 'https://www.youtube.com/watch?v=ZF8nDDOb3us' },
+        { icon: '📚', title: '내신 공부법', desc: '소수빈 내신공부법', url: 'https://www.youtube.com/watch?v=OXCZzzn5u9U' },
+        { icon: '📖', title: '국어 공부법', desc: '범작가 국어공부법', url: 'https://www.youtube.com/watch?v=_FHDcl2tDjY' },
+        { icon: '🔤', title: '영어 공부법', desc: '노베영어 영어공부법', url: 'https://www.youtube.com/watch?v=N77EKdmVYac' },
+        { icon: '➗', title: '수학 공부법', desc: '수학하는 땅우', url: 'https://www.youtube.com/watch?v=OD3SMHvF6ss' },
+        { icon: '🌍', title: '사탐 공부법', desc: '사탐 공부법', url: 'https://www.youtube.com/watch?v=mE8Jiv94qdM' },
+        { icon: '🔬', title: '과탐 공부법', desc: '과탐 공부법', url: 'https://www.youtube.com/watch?v=wrl3XY8mCt8' },
+    ],
+    lecture: [
+        { icon: '📖', title: 'EBSi 국어', desc: 'EBS 무료 국어 인강', url: 'https://www.ebsi.co.kr/ebs/pot/potg/retrieveSeriesSubjectList.ebs?seriesGrpId=PKG_0187&seriesId=PRO_1617' },
+        { icon: '🔤', title: 'EBSi 영어', desc: 'EBS 무료 영어 인강', url: 'https://www.ebsi.co.kr/ebs/pot/potg/retrieveCourseH3TeacherInfo.ebs?dstgCd=T0028#intro' },
+        { icon: '➗', title: 'EBSi 수학', desc: 'EBS 무료 수학 인강', url: 'https://www.ebsi.co.kr/ebs/pot/potg/retrieveCourseH3TeacherInfo.ebs?dstgCd=T0280#intro' },
+        { icon: '🌍', title: 'EBSi 사탐', desc: 'EBS 무료 사탐 인강', url: 'https://www.ebsi.co.kr/ebs/pot/potn/retrieveSbjtListByArea.ebs?categoryCode=A500&cookieGradeVal=high3' },
+        { icon: '🔬', title: 'EBSi 과탐', desc: 'EBS 무료 과탐 인강', url: 'https://www.ebsi.co.kr/ebs/pot/potn/retrieveSbjtListByArea.ebs?categoryCode=A400&cookieGradeVal=high3' },
+    ]
+};
+
+function switchRecommend(tab) {
+    document.querySelectorAll('.recommend-tab').forEach((t, i) => {
+        t.classList.toggle('active', (tab === 'study' && i === 0) || (tab === 'lecture' && i === 1));
+    });
+    renderRecommendCards(tab);
+}
+
+function renderRecommendCards(tab) {
+    const cards = recommendData[tab];
+    document.getElementById('recommendCards').innerHTML = cards.map(card => `
+        <a href="${card.url}" target="_blank" class="recommend-card">
+            <div class="recommend-card-icon">${card.icon}</div>
+            <div>
+                <div class="recommend-card-title">${card.title}</div>
+                <div class="recommend-card-desc">${card.desc}</div>
+            </div>
+        </a>
+    `).join('');
+}
+
+renderRecommendCards('study');
         
         // 30초마다 실시간 통계 갱신
         setInterval(async () => {
@@ -564,7 +685,15 @@
             document.getElementById('coaching-banner').style.display = 'none';
         }
     </script>
-
+<!-- 추천 콘텐츠 섹션 -->
+<div class="recommend-section">
+    <div class="recommend-title">📖 고등학생 추천 콘텐츠</div>
+    <div class="recommend-category-tabs">
+        <div class="recommend-tab active" onclick="switchRecommend('study')">💡 공부법</div>
+        <div class="recommend-tab" onclick="switchRecommend('lecture')">🎓 인강</div>
+    </div>
+    <div class="recommend-cards" id="recommendCards"></div>
+</div>
     <div style="height: 80px;"></div>
 </body>
 </html>
