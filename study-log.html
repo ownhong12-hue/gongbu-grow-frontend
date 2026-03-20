@@ -15,8 +15,8 @@
         :root {
             --primary: #6366f1; --primary-dark: #4f46e5; --secondary: #ec4899;
             --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
-            --bg: #0f172a; --bg-light: #1e293b; --bg-lighter: #334155;
-            --text: #f8fafc; --text-muted: #94a3b8; --border: #334155;
+            --bg: #ffffff; --bg-light: #f8fafc; --bg-lighter: #f1f5f9;
+            --text: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
         }
         
         body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
@@ -31,13 +31,13 @@
         .today-total-label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
         .today-total-time { font-size: 2rem; font-weight: 900; }
         
-        .timer-display { background: linear-gradient(135deg, var(--bg-light), var(--bg-lighter)); border: 2px solid var(--border); border-radius: 30px; padding: 60px 40px 30px 40px; text-align: center; margin-bottom: 30px; position: relative; overflow: hidden; }
+        .timer-display { background: linear-gradient(135deg, #f8fafc, #f1f5f9); border: 2px solid var(--border); border-radius: 30px; padding: 60px 40px 30px 40px; text-align: center; margin-bottom: 30px; position: relative; overflow: hidden; }
         .timer-display::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%); animation: pulse 3s ease-in-out infinite; }
         
         @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.8; } }
         
         .timer-display.active::before { animation: pulse 2s ease-in-out infinite; background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%); }
-        .subject-label { position: relative; z-index: 1; display: inline-block; padding: 8px 20px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 30px; }
+        .subject-label { position: relative; z-index: 1; display: inline-block; padding: 8px 20px; background: #ffffff; border: 1px solid var(--border); border-radius: 20px; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 30px; }
         .time-display { position: relative; z-index: 1; font-family: 'Black Han Sans', sans-serif; font-size: 5rem; font-weight: 900; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 30px; letter-spacing: 4px; }
         .timer-display.active .time-display { background: linear-gradient(135deg, var(--success), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         
