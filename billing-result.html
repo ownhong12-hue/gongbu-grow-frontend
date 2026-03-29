@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>결제 처리 중 | 공부.성장 코칭반</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #FAFAF7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 48px 32px;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .icon { font-size: 48px; margin-bottom: 20px; }
+  h1 { font-size: 22px; font-weight: 900; margin-bottom: 12px; letter-spacing: -0.03em; }
+  p { font-size: 15px; color: #666; line-height: 1.6; margin-bottom: 24px; }
+  .btn {
+    display: inline-block;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    color: #fff;
+    background: linear-gradient(135deg, #1B4332 0%, #2D6A4F 50%, #40916C 100%);
+    border: none;
+    cursor: pointer;
+  }
+  .loading { display: block; }
+  .result { display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="loading" id="loading">
+    <div class="icon">⏳</div>
+    <h1>결제 처리 중...</h1>
+    <p>카드 등록을 확인하고 있습니다.<br>잠시만 기다려주세요.</p>
+  </div>
+  <div class="result" id="success">
+    <div class="icon">✅</div>
+    <h1>카드 등록 완료!</h1>
+    <p>공부.성장 코칭반 구독이 시작되었습니다.<br>카카오톡 오픈채팅방으로 안내드리겠습니다.</p>
+    <a href="https://open.kakao.com/o/sChWHUni" class="btn" target="_blank">오픈채팅방 입장하기</a>
+  </div>
+  <div class="result" id="fail">
+    <div class="icon">❌</div>
+    <h1>등록 실패</h1>
+    <p id="failMsg">카드 등록에 실패했습니다.<br>다시 시도해주세요.</p>
+    <a href="pricing.html" class="btn">다시 시도하기</a>
+  </div>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const customerKey = params.get('customerKey');
+  const authKey = params.get('authKey');
+  const errorCode = params.get('code');
+  const errorMsg = params.get('message');
+
+  async function processBilling() {
+    if (errorCode) {
+      // 실패
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('fail').style.display = 'block';
+      document.getElementById('failMsg').textContent = errorMsg || '카드 등록에 실패했습니다. 다시 시도해주세요.';
+      return;
+    }
+
+    if (customerKey && authKey) {
+      try {
+        // 빌링키 발급 요청
+        const response = await fetch('/api/billing-auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customerKey, authKey }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('success').style.display = 'block';
+        } else {
+          throw new Error(data.error);
+        }
+      } catch (error) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('fail').style.display = 'block';
+        document.getElementById('failMsg').textContent = error.message || '처리 중 오류가 발생했습니다.';
+      }
+    } else {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('fail').style.display = 'block';
+    }
+  }
+
+  processBilling();
+</script>
+</body>
+</html>
