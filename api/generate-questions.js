@@ -1,5 +1,6 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const { query } = require('./_lib/database');
+const { authenticateToken } = require('./_lib/middleware');
 
 const adminAuth = (req) => {
     const admin_password = req.headers['admin_password'];
@@ -16,6 +17,190 @@ const SCHOOL_LEVEL_MAP = {
 };
 
 module.exports = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, admin_password');
+    if (req.method === 'OPTIONS') return res.status(200).end();
+
+    const { type } = req.method === 'GET' ? req.query : (req.body || {});
+
+    // ─────────────────────────────────────────
+    // 코칭 관련 기능 (토큰 인증 필요)
+    // ─────────────────────────────────────────
+    if (['save_message','get_messages','save_profile','get_profile','save_note','get_notes','chat'].includes(type)) {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) return res.status(401).json({ success: false, error: '인증 토큰이 필요합니다' });
+
+        let userId;
+        try {
+            const jwt = require('jsonwebtoken');
+            const user = jwt.verify(token, process.env.JWT_SECRET);
+            userId = user.userId;
+        } catch {
+            return res.status(403).json({ success: false, error: '유효하지 않은 토큰입니다' });
+        }
+
+        if (!userId) return res.status(401).json({ success: false, error: '인증이 필요합니다' });
+
+        // 채팅 메시지 저장
+        if (type === 'save_message') {
+            try {
+                const { role, message } = req.body;
+                if (!role || !message) return res.status(400).json({ success: false, error: 'role과 message가 필요합니다' });
+                await query(`INSERT INTO coaching_messages (user_id, role, message) VALUES ($1, $2, $3)`, [userId, role, message]);
+                return res.json({ success: true });
+            } catch (error) {
+                console.error('메시지 저장 오류:', error);
+                return res.status(500).json({ success: false, error: '서버 오류' });
+            }
+        }
+
+        // 채팅 내역 불러오기
+        if (type === 'get_messages') {
+            try {
+                const { rows } = await query(
+                    `SELECT role, message, created_at FROM coaching_messages WHERE user_id = $1 ORDER BY created_at ASC LIMIT 50`,
+                    [userId]
+                );
+                return res.json({ success: true, messages: rows });
+            } catch (error) {
+                console.error('메시지 불러오기 오류:', error);
+                return res.status(500).json({ success: false, error: '서버 오류' });
+            }
+        }
+
+        // 프로필 저장
+        if (type === 'save_profile') {
+            try {
+                const { exam_date, subject_goals } = req.body;
+                await query(
+                    `INSERT INTO coaching_profile (user_id, exam_date, subject_goals, updated_at)
+                     VALUES ($1, $2, $3, NOW())
+                     ON CONFLICT (user_id) DO UPDATE
+                     SET exam_date = $2, subject_goals = $3, updated_at = NOW()`,
+                    [userId, exam_date || null, JSON.stringify(subject_goals || {})]
+                );
+                return res.json({ success: true });
+            } catch (error) {
+                console.error('프로필 저장 오류:', error);
+                return res.status(500).json({ success: false, error: '서버 오류' });
+            }
+        }
+
+        // 프로필 불러오기
+        if (type === 'get_profile') {
+            try {
+                const { rows } = await query(`SELECT exam_date, subject_goals FROM coaching_profile WHERE user_id = $1`, [userId]);
+                return res.json({ success: true, profile: rows[0] || null });
+            } catch (error) {
+                console.error('프로필 불러오기 오류:', error);
+                return res.status(500).json({ success: false, error: '서버 오류' });
+            }
+        }
+
+        // 중요점 저장
+        if (type === 'save_note') {
+            try {
+                const { subject, content } = req.body;
+                if (!subject) return res.status(400).json({ success: false, error: 'subject가 필요합니다' });
+                await query(
+                    `INSERT INTO coaching_notes (user_id, subject, content, updated_at)
+                     VALUES ($1, $2, $3, NOW())
+                     ON CONFLICT (user_id, subject) DO UPDATE
+                     SET content = $3, updated_at = NOW()`,
+                    [userId, subject, content || '']
+                );
+                return res.json({ success: true });
+            } catch (error) {
+                console.error('중요점 저장 오류:', error);
+                return res.status(500).json({ success: false, error: '서버 오류' });
+            }
+        }
+
+        // 중요점 불러오기
+        if (type === 'get_notes') {
+            try {
+                const { rows } = await query(`SELECT subject, content, updated_at FROM coaching_notes WHERE user_id = $1 ORDER BY subject ASC`, [userId]);
+                return res.json({ success: true, notes: rows });
+            } catch (error) {
+                console.error('중요점 불러오기 오류:', error);
+                return res.status(500).json({ success: false, error: '서버 오류' });
+            }
+        }
+
+        // AI 코치 채팅
+        if (type === 'chat') {
+            try {
+                const { message } = req.body;
+                if (!message) return res.status(400).json({ success: false, error: 'message가 필요합니다' });
+
+                const [profileResult, notesResult, messagesResult, userResult] = await Promise.all([
+                    query(`SELECT exam_date, subject_goals FROM coaching_profile WHERE user_id = $1`, [userId]),
+                    query(`SELECT subject, content FROM coaching_notes WHERE user_id = $1`, [userId]),
+                    query(`SELECT role, message FROM coaching_messages WHERE user_id = $1 ORDER BY created_at DESC LIMIT 20`, [userId]),
+                    query(`SELECT nickname, school_level FROM users WHERE user_id = $1`, [userId])
+                ]);
+
+                const profile = profileResult.rows[0] || {};
+                const notes = notesResult.rows;
+                const recentMessages = messagesResult.rows.reverse();
+                const user = userResult.rows[0] || {};
+
+                let dday = '';
+                if (profile.exam_date) {
+                    const diff = Math.ceil((new Date(profile.exam_date) - new Date()) / (1000 * 60 * 60 * 24));
+                    dday = `시험까지 D-${diff}`;
+                }
+
+                const goals = profile.subject_goals || {};
+                const goalsText = Object.entries(goals).map(([s, g]) => `${s}: ${g}%`).join(', ') || '미설정';
+                const notesText = notes.length > 0 ? notes.map(n => `[${n.subject}] ${n.content}`).join('\n') : '아직 입력 없음';
+
+                const systemPrompt = `너는 공부.성장 코치야. 학생들에게 공부 방향을 잡아주고 동기부여를 해주는 역할이야.
+절대 AI 티 내지 마. 친근하고 따뜻하게, 마치 옆에서 직접 봐주는 선생님처럼 대화해.
+반말 하지 말고 존댓말로, 하지만 딱딱하지 않게.
+
+[학생 정보]
+이름: ${user.nickname || '학생'}
+학교급: ${user.school_level || '미설정'}
+${dday}
+과목별 목표: ${goalsText}
+
+[학생이 적은 중요점]
+${notesText}`;
+
+                const conversationHistory = recentMessages.map(m => ({
+                    role: m.role === 'coach' ? 'assistant' : 'user',
+                    content: m.message
+                }));
+                conversationHistory.push({ role: 'user', content: message });
+
+                const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+                const claudeRes = await client.messages.create({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 1000,
+                    system: systemPrompt,
+                    messages: conversationHistory
+                });
+
+                const reply = claudeRes.content?.[0]?.text;
+                if (!reply) throw new Error('응답 없음');
+
+                await query(`INSERT INTO coaching_messages (user_id, role, message) VALUES ($1, $2, $3)`, [userId, 'user', message]);
+                await query(`INSERT INTO coaching_messages (user_id, role, message) VALUES ($1, $2, $3)`, [userId, 'coach', reply]);
+
+                return res.json({ success: true, reply });
+            } catch (error) {
+                console.error('채팅 오류:', error);
+                return res.status(500).json({ success: false, error: '서버 오류' });
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────
+    // 문제 생성 기능 (기존)
+    // ─────────────────────────────────────────
     if (req.method !== 'POST') {
         return res.status(405).json({ error: '허용되지 않는 메서드입니다.' });
     }
@@ -43,18 +228,13 @@ module.exports = async (req, res) => {
 
 [출제 기준]
 1. 해당 학교급/학년/학기/과목에서 보편적으로 다루는 핵심 개념 기준으로 출제
-   (특정 교육과정 버전이나 교과서에 종속되지 않는 내용)
 2. 오답 3개는 명확하게 틀린 것으로 구성 - 헷갈리거나 애매한 오답 절대 금지
 3. 정답은 반드시 1개만 존재해야 함
 4. 해설은 왜 정답인지, 왜 나머지가 오답인지 명확한 근거 포함
-5.  난이도는 전반적으로 매우 쉽게 구성할 것
-   - 해당 학년이라면 누구나 알 수 있는 기본 개념 위주로 출제
-   - 복잡한 계산이나 응용 문제 금지
-   - 단순 개념 확인 수준으로만 출제
+5. 난이도는 전반적으로 매우 쉽게 구성할 것
 6. 문제는 명확하고 간결하게, 중의적 해석 절대 금지
 7. 수식은 LaTeX($...$) 형식 절대 사용 금지. 일반 텍스트로 작성할 것
-   예: $3x^2$ → 3x², $\frac{1}{2}$ → 1/2, $\sqrt{2}$ → √2
-   8. 문제와 보기에 특수문자나 이모지 사용 금지
+8. 문제와 보기에 특수문자나 이모지 사용 금지
 9. 보기는 반드시 "① 내용", "② 내용", "③ 내용", "④ 내용" 형식으로 작성
 10. 문제 길이는 100자 이내로 간결하게
 11. 해설은 200자 이내로 핵심만 설명
@@ -63,7 +243,6 @@ module.exports = async (req, res) => {
 14. 같은 문제나 비슷한 문제 반복 출제 금지
 15. 문제에 "다음 중", "아닌 것은" 같은 부정형 표현 사용 금지
 16. 밑줄, 괄호, 표, 그림 등 텍스트로 표현 불가능한 형식 사용 금지
-- 문제에 모든 정보가 텍스트로 완결되어야 함 
 
 반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트 절대 포함 금지:
 
