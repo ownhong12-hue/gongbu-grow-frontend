@@ -39,6 +39,7 @@ body {
 .header-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
 .badge { font-size: 11px; padding: 5px 12px; background: rgba(255,255,255,0.15); border-radius: 20px; color: #fff; font-weight: 500; }
 .back-btn { color: rgba(255,255,255,0.8); font-size: 14px; cursor: pointer; text-decoration: none; }
+
 .tabs {
   display: flex;
   background: var(--card-bg);
@@ -58,8 +59,11 @@ body {
   transition: all 0.2s;
 }
 .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+
 .tab-content { display: none; }
 .tab-content.active { display: block; }
+
+/* 채팅 탭 */
 .chat-messages {
   padding: 16px;
   display: flex;
@@ -98,6 +102,7 @@ body {
 }
 .msg-time { font-size: 10px; color: var(--text-light); margin-top: 4px; text-align: right; }
 .msg.user .msg-time { text-align: left; }
+
 .chat-input-area {
   padding: 12px 16px;
   border-top: 1px solid var(--border);
@@ -141,6 +146,8 @@ body {
   color: var(--text-sub);
   width: fit-content;
 }
+
+/* 중요점 탭 */
 .notes-container { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .note-card {
   background: var(--card-bg);
@@ -178,6 +185,8 @@ body {
   outline: none;
 }
 .note-textarea::placeholder { color: var(--text-light); }
+
+/* 목표 탭 */
 .goals-container { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
 .dday-card {
   background: var(--primary);
@@ -203,6 +212,7 @@ body {
   outline: none;
 }
 .dday-input::-webkit-calendar-picker-indicator { filter: invert(1); }
+
 .goals-card {
   background: var(--card-bg);
   border: 0.5px solid var(--border);
@@ -250,6 +260,7 @@ body {
   transition: background 0.2s;
 }
 .save-goals-btn:hover { background: var(--primary-light); }
+
 .toast {
   position: fixed;
   bottom: 80px;
@@ -267,6 +278,7 @@ body {
   white-space: nowrap;
 }
 .toast.show { opacity: 1; }
+
 @media (max-width: 480px) {
   .chat-messages { min-height: calc(100vh - 260px); }
 }
@@ -291,6 +303,7 @@ body {
   <button class="tab-btn" onclick="switchTab('goals')">전과목별 목표</button>
 </div>
 
+<!-- 코치 상담 탭 -->
 <div id="tab-chat" class="tab-content active">
   <div class="chat-messages" id="chatMessages">
     <div class="msg">
@@ -308,10 +321,14 @@ body {
   </div>
 </div>
 
+<!-- 전과목 중요점 탭 -->
 <div id="tab-notes" class="tab-content">
-  <div class="notes-container" id="notesContainer"></div>
+  <div class="notes-container" id="notesContainer">
+    <!-- JS로 채워짐 -->
+  </div>
 </div>
 
+<!-- 전과목별 목표 탭 -->
 <div id="tab-goals" class="tab-content">
   <div class="goals-container">
     <div class="dday-card">
@@ -324,6 +341,7 @@ body {
         <input type="date" class="dday-input" id="examDateInput" onchange="saveDday()" />
       </div>
     </div>
+
     <div class="goals-card">
       <div class="goals-title">과목별 목표 달성률</div>
       <div id="goalsListEl"></div>
@@ -339,8 +357,11 @@ body {
 const SUBJECTS = ['국어', '수학', '영어', '사탐', '과탐', '한국사'];
 const token = localStorage.getItem('gongbu_token');
 
-if (!isAuthenticated()) window.location.href = 'index.html';
+if (!isAuthenticated()) {
+  window.location.href = 'index.html';
+}
 
+// ── 탭 전환 ──
 function switchTab(tab) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -348,6 +369,7 @@ function switchTab(tab) {
   event.target.classList.add('active');
 }
 
+// ── 토스트 ──
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -355,7 +377,23 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-// ── 메시지 추가 (타이핑 애니메이션 포함) ──
+// ── 채팅 ──
+async function loadMessages() {
+  try {
+    const res = await fetch('/api/generate-questions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ type: 'get_messages' })
+    });
+    const data = await res.json();
+    if (data.success && data.messages.length > 0) {
+      const container = document.getElementById('chatMessages');
+      container.innerHTML = '';
+      data.messages.forEach(m => appendMessage(m.role, m.message, false));
+    }
+  } catch(e) { console.error(e); }
+}
+
 function appendMessage(role, text, scroll = true, animate = false) {
   const container = document.getElementById('chatMessages');
   const isUser = role === 'user';
@@ -376,7 +414,7 @@ function appendMessage(role, text, scroll = true, animate = false) {
   timeEl.textContent = time;
 
   const inner = document.createElement('div');
-  inner.appendChild(bubble);
+  inner.appendChild(풍선껌);
   inner.appendChild(timeEl);
 
   div.appendChild(avatar);
@@ -385,10 +423,12 @@ function appendMessage(role, text, scroll = true, animate = false) {
 
   if (animate && !isUser) {
     const chars = text.split('');
-    let i = 0, html = '';
+    let i = 0;
+    let html = '';
     const interval = setInterval(() => {
       if (i >= chars.length) { clearInterval(interval); return; }
-      html += chars[i] === '\n' ? '<br>' : chars[i];
+      const ch = chars[i];
+      html += ch === '\n' ? '<br>' : ch;
       bubble.innerHTML = html;
       if (scroll) container.scrollTop = container.scrollHeight;
       i++;
@@ -398,21 +438,20 @@ function appendMessage(role, text, scroll = true, animate = false) {
     if (scroll) container.scrollTop = container.scrollHeight;
   }
 }
-
-async function loadMessages() {
-  try {
-    const res = await fetch('/api/generate-questions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ type: 'get_messages' })
-    });
-    const data = await res.json();
-    if (data.success && data.messages.length > 0) {
-      const container = document.getElementById('chatMessages');
-      container.innerHTML = '';
-      data.messages.forEach(m => appendMessage(m.role, m.message, false, false));
-    }
-  } catch(e) { console.error(e); }
+  const container = document.getElementById('chatMessages');
+  const isUser = role === 'user';
+  const time = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+  const div = document.createElement('div');
+  div.className = 'msg' + (isUser ? ' user' : '');
+  div.innerHTML = `
+    <div class="msg-avatar">${isUser ? '나' : '코치'}</div>
+    <div>
+      <div class="msg-bubble">${text.replace(/\n/g, '<br>')}</div>
+      <div class="msg-time">${time}</div>
+    </div>
+  `;
+  container.appendChild(div);
+  if (scroll) container.scrollTop = container.scrollHeight;
 }
 
 async function sendMessage() {
@@ -423,7 +462,7 @@ async function sendMessage() {
 
   input.value = '';
   btn.disabled = true;
-  appendMessage('user', msg, true, false);
+  appendMessage('user', msg);
 
   const typing = document.createElement('div');
   typing.className = 'msg';
@@ -443,11 +482,11 @@ async function sendMessage() {
     if (data.success) {
       appendMessage('coach', data.reply, true, true);
     } else {
-      appendMessage('coach', '잠시 오류가 발생했어요. 다시 시도해줘요!', true, false);
+      appendMessage('coach', '잠시 오류가 발생했어요. 다시 시도해줘요!');
     }
   } catch(e) {
     document.getElementById('typing')?.remove();
-    appendMessage('coach', '잠시 오류가 발생했어요. 다시 시도해줘요!', true, false);
+    appendMessage('coach', '잠시 오류가 발생했어요. 다시 시도해줘요!');
   }
   btn.disabled = false;
 }
@@ -456,6 +495,7 @@ document.getElementById('chatInput').addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
 
+// ── 중요점 ──
 let notesData = {};
 
 function renderNotes() {
@@ -479,7 +519,9 @@ async function loadNotes() {
       body: JSON.stringify({ type: 'get_notes' })
     });
     const data = await res.json();
-    if (data.success) data.notes.forEach(n => { notesData[n.subject] = n.content; });
+    if (data.success) {
+      data.notes.forEach(n => { notesData[n.subject] = n.content; });
+    }
   } catch(e) { console.error(e); }
   renderNotes();
 }
@@ -497,6 +539,7 @@ async function saveNote(subject) {
   } catch(e) { showToast('저장 실패'); }
 }
 
+// ── 목표 ──
 let goalsData = {};
 let examDate = '';
 
@@ -572,12 +615,15 @@ async function loadProfile() {
         document.getElementById('examDateInput').value = examDate;
         updateDday();
       }
-      if (data.profile.subject_goals) goalsData = data.profile.subject_goals;
+      if (data.profile.subject_goals) {
+        goalsData = data.profile.subject_goals;
+      }
     }
   } catch(e) { console.error(e); }
   renderGoals();
 }
 
+// ── 초기화 ──
 loadMessages();
 loadNotes();
 loadProfile();
