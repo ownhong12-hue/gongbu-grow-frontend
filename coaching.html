@@ -185,6 +185,10 @@ function appendMessage(role, text, scroll = true) {
 }
 
 async function loadMessages() {
+  const userStr = localStorage.getItem('gongbu_user');
+  const userObj = userStr ? JSON.parse(userStr) : {};
+  const nickname = userObj.nickname || '학생';
+  document.getElementById('welcomeMsg').innerHTML = `안녕하세요 ${nickname}님! 오늘 순공시간과 과목별 공부한 내용을 보내주세요. 내용을 바탕으로 점수와 평가를 드릴게요!<br><br>예시) 오늘 순공 5시간이고, 수학은 지수함수 개념공부와 문제풀이 20문제, 국어는 이육사 청포도, 영어는 교과서 본문 공부했습니다.`;
   try {
     const res = await fetch('/api/generate-questions', {
       method: 'POST',
