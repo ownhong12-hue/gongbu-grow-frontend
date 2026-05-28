@@ -24,6 +24,7 @@ module.exports = async (req, res) => {
 
     const { type } = req.method === 'GET' ? req.query : (req.body || {});
 
+    // ── 코칭 관련 (학생용) ──
     if (['save_message','get_messages','save_profile','get_profile','save_note','get_notes','chat'].includes(type)) {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
@@ -261,6 +262,77 @@ ${dday}
         }
     }
 
+    // ── 관리자용 코칭 관련 ──
+    if (['subscribers','billing_keys','delete_billing_key','students','admin_messages'].includes(type)) {
+        if (!adminAuth(req)) {
+            return res.status(401).json({ success: false, error: '관리자 권한이 없습니다.' });
+        }
+
+        // 구독자 수 조회
+        if (type === 'subscribers') {
+            try {
+                const { rows } = await query(`SELECT COUNT(*) as count FROM billing_keys`);
+                return res.json({ success: true, count: parseInt(rows[0].count) });
+            } catch(e) {
+                return res.status(500).json({ success: false, error: e.message });
+            }
+        }
+
+        // 빌링키 목록 조회
+        if (type === 'billing_keys') {
+            try {
+                const { rows } = await query(`SELECT customer_key, billing_key, card_company, card_number, created_at FROM billing_keys ORDER BY created_at DESC`);
+                return res.json({ success: true, keys: rows });
+            } catch(e) {
+                return res.status(500).json({ success: false, error: e.message });
+            }
+        }
+
+        // 빌링키 삭제
+        if (type === 'delete_billing_key') {
+            try {
+                const { customer_key } = req.body;
+                await query(`DELETE FROM billing_keys WHERE customer_key = $1`, [customer_key]);
+                return res.json({ success: true });
+            } catch(e) {
+                return res.status(500).json({ success: false, error: e.message });
+            }
+        }
+
+        // 코칭 학생 목록 조회
+        if (type === 'students') {
+            try {
+                const { rows } = await query(`
+                    SELECT DISTINCT u.user_id, u.nickname, u.school_level
+                    FROM users u
+                    INNER JOIN coaching_messages cm ON cm.user_id = u.user_id
+                    ORDER BY u.nickname ASC
+                `);
+                return res.json({ success: true, students: rows });
+            } catch(e) {
+                return res.status(500).json({ success: false, error: e.message });
+            }
+        }
+
+        // 특정 학생 코칭 메시지 조회
+        if (type === 'admin_messages') {
+            try {
+                const user_id = req.method === 'GET' ? req.query.user_id : req.body.user_id;
+                if (!user_id) return res.status(400).json({ success: false, error: 'user_id가 필요합니다.' });
+                const { rows } = await query(`
+                    SELECT role, message, created_at
+                    FROM coaching_messages
+                    WHERE user_id = $1
+                    ORDER BY created_at ASC
+                `, [user_id]);
+                return res.json({ success: true, messages: rows });
+            } catch(e) {
+                return res.status(500).json({ success: false, error: e.message });
+            }
+        }
+    }
+
+    // ── 문제 생성 (관리자용) ──
     if (req.method !== 'POST') {
         return res.status(405).json({ error: '허용되지 않는 메서드입니다.' });
     }
