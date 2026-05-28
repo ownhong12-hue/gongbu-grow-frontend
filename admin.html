@@ -216,7 +216,7 @@
             }
             // 구독자 수 로드
             try {
-                const res = await fetch(`${API_BASE_URL}/admin-coaching?type=subscribers`, {
+                const res = await fetch(`${API_BASE_URL}/generate-questions?type=subscribers`, {
                     headers: { 'admin_password': adminPassword, 'Content-Type': 'application/json' }
                 });
                 const data = await res.json();
@@ -283,7 +283,7 @@
 
         async function loadSubscriptions() {
             try {
-                const res = await fetch(`${API_BASE_URL}/admin-coaching?type=billing_keys`, {
+                const res = await fetch(`${API_BASE_URL}/generate-questions?type=billing_keys`, {
                     headers: { 'admin_password': adminPassword }
                 });
                 const data = await res.json();
@@ -347,7 +347,7 @@
         async function deleteBillingKey(customerKey) {
             if (!confirm('이 구독자의 카드 정보를 삭제하시겠습니까?')) return;
             try {
-                const res = await fetch(`${API_BASE_URL}/admin-coaching?type=delete_billing_key`, {
+                const res = await fetch(`${API_BASE_URL}/generate-questions?type=delete_billing_key`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'admin_password': adminPassword },
                     body: JSON.stringify({ customer_key: customerKey })
@@ -359,7 +359,7 @@
 
         async function loadCoachingStudents() {
             try {
-                const res = await fetch(`${API_BASE_URL}/admin-coaching?type=students`, {
+                const res = await fetch(`${API_BASE_URL}/generate-questions?type=students`, {
                     headers: { 'admin_password': adminPassword }
                 });
                 const data = await res.json();
@@ -379,7 +379,7 @@
             if (!userId) { container.innerHTML = ''; return; }
             container.innerHTML = '<div style="text-align:center;padding:20px;color:#999;">로딩 중...</div>';
             try {
-                const res = await fetch(`${API_BASE_URL}/admin-coaching?type=messages&user_id=${userId}`, {
+                const res = await fetch(`${API_BASE_URL}/generate-questions?type=admin_messages&user_id=${userId}`, {
                     headers: { 'admin_password': adminPassword }
                 });
                 const data = await res.json();
