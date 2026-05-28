@@ -185,9 +185,9 @@
             const password = document.getElementById('adminPassword').value;
             if (!password) { alert('비밀번호를 입력하세요.'); return; }
             try {
-                const response = await fetch(`${API_BASE_URL}/admin/stats`, {
-                    headers: { 'admin_password': password }
-                });
+               const response = await fetch(`${API_BASE_URL}/generate-questions?type=subscribers`, {
+    headers: { 'admin_password': password }
+});
                 if (response.ok) {
                     adminPassword = password;
                     document.getElementById('loginSection').classList.add('hidden');
